@@ -19,6 +19,7 @@ use \Imagine\Image\Point;
 use \Imagine\Filter\Advanced\OnPixelBased;
 use \Imagine\Filter\Advanced\Canvas;
 use \Imagine\Filter\Basic\Thumbnail;
+use \Imagine\Image\Palette\ColorParser;
 
 
 /**
@@ -117,6 +118,9 @@ private $fileSystem;
     */
   private function _savePreset($resource, $presetId, $createdOn = NULL)
   {
+    //!!
+    if($resource == NULL){return false;}
+    //!!
     $extension = $resource->getExtension();
     foreach($this->container->getParameter('presets') as $p){
       if($p['id'] == $presetId){
@@ -173,25 +177,26 @@ private $fileSystem;
 
     $image = $imageProcessor->open($params['source']);
 
-    $targetSize = [$params['width'],$params['height']];
+    $targetSize = [(int)($params['width']),(int)($params['height'])];
 
     $imgSize = $this->_getImageDimentions($image);
 
-    $imgRatio = $imgSize[0]/$imgSize[1];
-    $targetRatio = $targetSize[0]/$targetSize[1];
+    $imgRatio = round($imgSize[0]/$imgSize[1], 2);
+    $targetRatio = round($targetSize[0]/$targetSize[1], 2);
 
     if($imgRatio !== $targetRatio){
-      $image = $this->_fixRatio($image, $targetRatio, $imageProcessor);
+      // $image = $this->_fixRatio($image, $targetRatio, $imageProcessor);
+      $retImg = $this->_thumbByContent($image, $imageProcessor, [$targetSize[0], $targetSize[1]], 5);
+    }else{
+      $retImg = $this->_getThumbnail($image, $targetSize, $params['mode']);
     }
-
-    $retImg = $this->_getThumbnail($image, $targetSize, $params['mode']);
 
     $retImg->save($params['target']);
   }
 
 private function _getThumbnail($image, $targetSize)
   {
-    $size = new Box($targetSize[0], $targetSize[1]);
+    $size = new Box((int)($targetSize[0]), (int)($targetSize[1]));
     $thumb = new Thumbnail($size);
     $image = $thumb->apply($image);
     return $image;
@@ -204,7 +209,7 @@ function _growMargins($image, $interface, $size, $placement)
 
   $tempImg = $image->copy();
 
-  $box = new Box($size[0], $size[1]);
+  $box = new Box((int)($size[0]), (int)($size[1]));
 
   $imgSize = $this->_getImageDimentions($tempImg);
 
@@ -222,17 +227,18 @@ function _growMargins($image, $interface, $size, $placement)
 
 private function _isImageWhite($image)
 {
-  $avg = 255;
+  $white = true;
   $counter = 0;
   $step = 15;
-  $onpixel = new OnPixelBased(function($i, $p) use (&$avg, &$counter, $step) {
+  $onpixel = new OnPixelBased(function($i, $p) use (&$white, &$counter, $step) {
     if($counter%$step!=0){return;}
     $color = $i->getColorAt($p);
-    $localAvg = ($color->getValue(ColorInterface::COLOR_RED) + $color->getValue(ColorInterface::COLOR_GREEN) + $color->getValue(ColorInterface::COLOR_BLUE))/3;
-    $avg = (int)(($avg+$localAvg)/2);
+    if($color->__toString() !== '#ffffff'){
+      $white = false;
+    }
   });
   $onpixel->apply($image);
-  return $avg === 255;
+  return $white;
 }
 
 private function _cropMargin($image, $size, $returnMargin=false, $index=0)
@@ -249,14 +255,14 @@ private function _cropMargin($image, $size, $returnMargin=false, $index=0)
   }
 
   $startCoords = [[0,0],[0,0]];
-  $cropSize[$cropAxis] = ($imgSize[$cropAxis]-$size[$cropAxis])/2;
+  $cropSize[$cropAxis] = (int)(($imgSize[$cropAxis]-$size[$cropAxis])/2);
   $startCoords[1][$cropAxis] = $imgSize[$cropAxis]-$cropSize[$cropAxis];
   if(!$returnMargin){
     $startCoords[0][$cropAxis] = $cropSize[$cropAxis];
     $cropSize[$cropAxis] = $size[$cropAxis];
   }
 
-  $cropBox = new Box($cropSize[0], $cropSize[1]);
+  $cropBox = new Box((int)($cropSize[0]), (int)($cropSize[1]));
   $start = new Point($startCoords[$index][0],$startCoords[$index][1]);
   $cropf = new Crop($start, $cropBox);
 
@@ -290,10 +296,11 @@ private function _fixRatio($image, $ratio, $interface)
   $currentRatio = $imgSize[0]/$imgSize[1];
   $fixAxis = (int)($ratio>$currentRatio);
   if($fixAxis===0){
-    $targetSize[0] = $imgSize[1]*$ratio;
+    $targetSize[0] = (int)($imgSize[1]*$ratio);
   }elseif($fixAxis===1){
-    $targetSize[1] = $imgSize[0]/$ratio;
+    $targetSize[1] = (int)($imgSize[0]/$ratio);
   }
+
   $marginsWhite = $this->_areMarginsWhite($image, $targetSize);
   if($marginsWhite){
     return $this->_cropMargin($image, $targetSize);
@@ -301,14 +308,146 @@ private function _fixRatio($image, $ratio, $interface)
     $targetSize = $imgSize;
     $fixAxis = $fixAxis===1?0:1;
     if($fixAxis===0){
-      $targetSize[0] = $imgSize[0]*($ratio/$currentRatio);
+      $targetSize[0] = (int)($imgSize[0]*($ratio/$currentRatio));
     }elseif($fixAxis===1){
-      $targetSize[1] = $imgSize[1]/($ratio/$currentRatio);
+      $targetSize[1] = (int)($imgSize[1]/($ratio/$currentRatio));
     }
     $placement = [0,0];
     $placement[$fixAxis] = ($targetSize[$fixAxis] - $imgSize[$fixAxis])/2;
     return $this->_growMargins($image, $interface, $targetSize, $placement);
   }
+}
+
+private function _getImageContentMap($image)
+{
+
+  $tempImg = $image->copy();
+
+  $imgSize = $this->_getImageDimentions($image);
+  $leftHit = $this->_scanBound([
+    'start'=>[0,0],
+    'direction'=>'right',
+    'image'=>$image,
+    'targetResult'=>true,
+    'step'=>5
+  ]);
+  $topHit = $this->_scanBound([
+    'start'=>[$leftHit[0],0],
+    'direction'=>'down',
+    'image'=>$image,
+    'targetResult'=>true,
+    'step'=>5
+  ]);
+  $rightHit = $this->_scanBound([
+    'start'=>[$imgSize[0]-1,0],
+    'direction'=>'left',
+    'image'=>$image,
+    'targetResult'=>true,
+    'step'=>5
+  ]);
+  $bottomHit = $this->_scanBound([
+    'start'=>[$leftHit[0],$imgSize[1]-1],
+    'direction'=>'up',
+    'image'=>$image,
+    'targetResult'=>true,
+    'step'=>5
+  ]);
+
+  return [
+    'top'=>$topHit[1],
+    'right'=>$rightHit[0],
+    'bottom'=>$bottomHit[1],
+    'left'=>$leftHit[0],
+  ];
+}
+
+private function _thumbByContent($image, $interface, $targetSize, $margin = 5)
+{
+
+  $tempImg = $image->copy();
+  $contentMap = $this->_getImageContentMap($tempImg);
+
+  $cropStart = [$contentMap['left'], $contentMap['top']];
+  $cropSize = [$contentMap['right']-$contentMap['left'], $contentMap['bottom']-$contentMap['top']];
+
+  $cropBox = new Box($cropSize[0], $cropSize[1]);
+  $start = new Point($cropStart[0],$cropStart[1]);
+  $cropf = new Crop($start, $cropBox);
+
+  $cropped = $cropf->apply($image);
+
+  $marginx = 0;
+  $marginy = 0;
+
+  if(($cropSize[0]+$margin)>$targetSize[0] || ($cropSize[1]+$margin)>$targetSize[1]){
+    $xdiff = ($cropSize[0]+$margin)-$targetSize[0];
+    $ydiff = ($cropSize[1]+$margin)-$targetSize[1];
+    $ratio = $cropSize[0]/$cropSize[1];
+    if($xdiff>$ydiff){
+      $targx = $targetSize[0]-$margin;
+      $cropSize = [(int)$targx, (int)($targx/$ratio)-$margin];
+      $marginx = $margin;
+    }else{
+      $targy = $targetSize[1]-$margin;
+      $cropSize = [(int)($targy*$ratio)-$margin, (int)$targy];
+      $marginy = $margin;
+    }
+    $size = new Box((int)($cropSize[0]), (int)($cropSize[1]));
+    $thumb = new Thumbnail($size);
+    $cropped = $thumb->apply($cropped);
+  }
+
+  $placement = [($targetSize[0]-$cropSize[0])/2+$marginx, ($targetSize[1]-$cropSize[1])/2+$marginy];
+
+  return $this->_growMargins($cropped, $interface, $targetSize, $placement);
+
+}
+
+private function _scanBound($params)
+{
+
+  $image = $params['image'];
+
+  $imgSize = $this->_getImageDimentions($image);
+
+  $x = $params['start'][0];
+  $y = $params['start'][1];
+
+  $step = $params['step'];
+
+  if($params['direction'] === 'up' || $params['direction'] === 'down'){
+    $axes = [&$y,&$x];
+    $limits = [$params['direction']==='up'?0:$imgSize[1],$imgSize[0]];
+    $increments = [$params['direction']==='up'?-$step:$step, $step];
+    $resets = [$y,$x];
+  }else{
+    $axes = [&$x,&$y];
+    $limits = [$params['direction']==='left'?0:$imgSize[0],$imgSize[1]];
+    $increments = [$params['direction']==='left'?-$step:$step, $step];
+    $resets = [$x,$y];
+  }
+
+  $result = !$params['targetResult'];
+  $counters = [0,0];
+
+  while(abs($axes[0]-$limits[0])>0 && $result!==$params['targetResult']){
+    $axes[1] = $resets[1];
+    while(abs($axes[1]-$limits[1])>0 && $result!==$params['targetResult']){
+      $p = new Point($x, $y);
+      $color = $image->getColorAt($p)->__toString();
+      if(('#ffffff'!==$color)==$params['targetResult']){
+        $result = $params['targetResult'];
+      }else{
+        $axes[1]+=$increments[1];
+        $counters[1]++;
+      }
+    }
+    if($result!==$params['targetResult']){
+      $axes[0]+=$increments[0];
+      $counters[0]++;
+    }
+  }
+  return [$x, $y];
 }
 
 }
