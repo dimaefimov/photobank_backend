@@ -118,9 +118,6 @@ private $fileSystem;
     */
   private function _savePreset($resource, $presetId, $createdOn = NULL)
   {
-    //!!
-    if($resource == NULL){return false;}
-    //!!
     $extension = $resource->getExtension();
     foreach($this->container->getParameter('presets') as $p){
       if($p['id'] == $presetId){
@@ -324,6 +321,7 @@ private function _getImageContentMap($image)
   $tempImg = $image->copy();
 
   $imgSize = $this->_getImageDimentions($image);
+
   $leftHit = $this->_scanBound([
     'start'=>[0,0],
     'direction'=>'right',
@@ -352,7 +350,6 @@ private function _getImageContentMap($image)
     'targetResult'=>true,
     'step'=>5
   ]);
-
   return [
     'top'=>$topHit[1],
     'right'=>$rightHit[0],
@@ -370,7 +367,7 @@ private function _thumbByContent($image, $interface, $targetSize, $margin = 5)
   $cropStart = [$contentMap['left'], $contentMap['top']];
   $cropSize = [$contentMap['right']-$contentMap['left'], $contentMap['bottom']-$contentMap['top']];
 
-  $cropBox = new Box($cropSize[0], $cropSize[1]);
+  $cropBox = new Box((int)$cropSize[0], (int)$cropSize[1]);
   $start = new Point($cropStart[0],$cropStart[1]);
   $cropf = new Crop($start, $cropBox);
 
@@ -392,6 +389,12 @@ private function _thumbByContent($image, $interface, $targetSize, $margin = 5)
       $cropSize = [(int)($targy*$ratio)-$margin, (int)$targy];
       $marginy = $margin;
     }
+    if($cropSize[0]>$targetSize[0]){
+      $cropSize[0]=$targetSize[0];
+    }
+    if($cropSize[1]>$targetSize[1]){
+      $cropSize[1]=$targetSize[1];
+    }
     $size = new Box((int)($cropSize[0]), (int)($cropSize[1]));
     $thumb = new Thumbnail($size);
     $cropped = $thumb->apply($cropped);
@@ -410,8 +413,8 @@ private function _scanBound($params)
 
   $imgSize = $this->_getImageDimentions($image);
 
-  $x = $params['start'][0];
-  $y = $params['start'][1];
+  $x = (int)($params['start'][0]);
+  $y = (int)($params['start'][1]);
 
   $step = $params['step'];
 
@@ -430,10 +433,12 @@ private function _scanBound($params)
   $result = !$params['targetResult'];
   $counters = [0,0];
 
-  while(abs($axes[0]-$limits[0])>0 && $result!==$params['targetResult']){
+  while(abs(($axes[0])-$limits[0])>$step && $result!==$params['targetResult']){
     $axes[1] = $resets[1];
-    while(abs($axes[1]-$limits[1])>0 && $result!==$params['targetResult']){
-      $p = new Point($x, $y);
+    while(abs(($axes[1])-$limits[1])>$step && $result!==$params['targetResult']){
+
+      $p = new Point((int)$x, (int)$y);
+
       $color = $image->getColorAt($p)->__toString();
       if(('#ffffff'!==$color)==$params['targetResult']){
         $result = $params['targetResult'];

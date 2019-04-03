@@ -23,7 +23,7 @@ parameters:
     preset_collections:
         main:
           id: 1
-          presets: [1,2,3]
+          presets: [1,2,3,4]
         additional:
           id: 2
           presets: [1,2]
