@@ -172,6 +172,7 @@ class CatalogueController extends AbstractController
 
         $items = $cnode->getItems();
         $itemsArray = $serializer->normalize($items, null, array(
+          'add-children-count'=>true,
             ObjectNormalizer::ENABLE_MAX_DEPTH => true,
             'groups' => array('main')
         ));
@@ -198,6 +199,7 @@ class CatalogueController extends AbstractController
       $queryObject = $queryBuilder->makeItemQuery($request);
       $items = $searchService->search($queryObject);
       $itemsArray = $serializer->normalize($items, null, array(
+        'add-children-count'=>true,
           ObjectNormalizer::ENABLE_MAX_DEPTH => true,
           'groups' => array('main')
       ));

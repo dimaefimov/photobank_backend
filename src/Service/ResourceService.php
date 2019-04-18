@@ -291,6 +291,7 @@ class ResourceService{
 
   public function getItemResourcesMetadata($codes)
   {
+    $unsorted_index = 0;
     $repo = $this->entityManager->getRepository(Resource::class);
     for($i = 0; $i<sizeof($codes); $i++){
       $code = $codes[$i];
@@ -304,11 +305,14 @@ class ResourceService{
         }
         if($row['type'] == '1'){
           $priority = 1;
-          $data[$code][$priority] = $presets;
-        }elseif($row['type'] == '2' && $row['priority'] != '0'){
-          $priority = (int)$row['priority'] + 1;
-          $data[$code][$priority] = $presets;
+        }elseif($row['type'] == '2'){
+          if($row['priority'] != '0'){
+            $priority = (int)$row['priority'] + 1;
+          }else{
+            $priority = 'a'.$unsorted_index++;
+          }
         }
+        $data[$code][$priority] = $presets;
       }
     }
     return $data;

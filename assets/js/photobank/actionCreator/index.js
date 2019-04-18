@@ -211,7 +211,9 @@ export function fetchExisting(id, collection){
     .then((data)=>{
       dispatch({
         type: EXISTING_RESOURCES_FETCH+SUCCESS,
-        payload: data
+        payload: {
+          id,resources:data
+        }
       });
     }).catch((error)=>{
       dispatch({
@@ -228,7 +230,7 @@ export function fetchExisting(id, collection){
  * @param  {Object} pagination Данные пагинации. Начало, лимит
  * @param  {Object[]} existing   Данные о существующих ресурсах
  */
-export function fetchPresets(pagination, existing){
+export function fetchPresets(pagination, existing, id){
   return (dispatch)=>{
     dispatch({
       type: EXISTING_PRESETS_FETCH+START,
@@ -238,9 +240,12 @@ export function fetchPresets(pagination, existing){
     .then((data)=>{
       dispatch({
         type: EXISTING_PRESETS_FETCH+SUCCESS,
-        payload: data
+        payload: {
+          id,presets:data
+        }
       });
     }).catch((error)=>{
+      console.log(error);
       dispatch({
         type: EXISTING_PRESETS_FETCH+FAIL,
         payload: ''

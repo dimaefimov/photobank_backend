@@ -126,6 +126,8 @@ class ResourceRepository extends ServiceEntityRepository
 
     public function getByItemPriorityPreset($item,$priority,$preset){
       $ent = 'r';
+      $unsorted = false;
+      $index = 0;
       $queryBuilder = $this->createQueryBuilder($ent)
       ->andWhere('r.item = :i')
       ->setParameter('i', $item);
@@ -142,10 +144,17 @@ class ResourceRepository extends ServiceEntityRepository
       }else{
         $queryBuilder->andWhere($ent.'.type = :t')
         ->setParameter('t',2)
-        ->andWhere($ent.'.priority = :p')
-        ->setParameter('p',$priority-1);
+        ->andWhere($ent.'.priority = :p');
+        if(!is_int($priority)){
+          $queryBuilder->setParameter('p',0);
+          $index = ltrim($priority, 'a');
+          $usorted = true;
+        }else{
+          $queryBuilder->setParameter('p',$priority-1);
+        }
       }
-      return $queryBuilder->getQuery()->getOneOrNullResult();
+      $result = $queryBuilder->getQuery()->getResult()[$index];
+      return $result;
     }
 
     public function getByItemPriorityPresetOptimized($item,$priority,$preset){

@@ -27,6 +27,7 @@ class CatalogueNodeItemNormalizer extends CustomNormalizer implements Normalizer
             'id'     => $object->getId(),
             'name'   => $object->getName(),
             'itemCode' => $object->getId(),
+            'article' => $object->getArticle(),
             'node' => $object->getNode()?$object->getNode()->getId():$object->getNode(),
         ];
 
@@ -40,7 +41,13 @@ class CatalogueNodeItemNormalizer extends CustomNormalizer implements Normalizer
               ),
           ]);
         }
-        
+
+        if($context['add-children-count']??false){
+            $main_data = array_merge($main_data, [
+              'resource_count' => sizeof($object->getOriginalResources())
+          ]);
+        }
+
         return $main_data;
     }
 

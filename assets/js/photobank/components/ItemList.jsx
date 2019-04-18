@@ -5,7 +5,7 @@ import { ListFilter } from './ListFilter';
 import {ItemService} from '../services/ItemService';
 import {LocalStorageService} from '../services/LocalStorageService';
 import {NotificationService} from '../../services/NotificationService';
-import {chooseNode, chooseItem, fetchItems} from '../actionCreator';
+import {chooseNode, chooseCatalogueViewType, chooseItem, fetchItems, fetchRootNodes} from '../actionCreator';
 import selectors from '../selectors';
 import * as constants from '../constants';
 /**
@@ -43,6 +43,15 @@ export class ItemList extends React.Component{
     });
   }
 
+  chooseNodeByItem(item){
+    this.props.fetchRootNodes(item.node, this.props.collection_type).then(
+      ()=>{
+        this.props.chooseNode(item.node, this.props.catalogue_data, this.props.collection_type);
+        setTimeout(()=>{this.props.chooseCatalogueViewType(constants.CATALOGUE_TREE_VIEW);},700);
+      }
+    );
+  }
+
   componentDidUpdate(prevProps){
     prevProps.current_item===null&&this.props.current_item&&this.itemClickHandler(this.props.current_item.id);
   }
@@ -52,7 +61,11 @@ export class ItemList extends React.Component{
     .filter((item)=>{if(!this.state.filter_query) return true; return JSON.stringify(item).toLowerCase().includes(this.state.filter_query.toLowerCase());})
     .map((item)=>
       <div className={"list-item"+((this.props.current_item!=null&&item.id===this.props.current_item.id)?" list-item--active":"")} key={item.id} data-item={item.id} onClick={()=>{this.itemClickHandler(item.id)}}>
-        <h4 className={"list-item__title"} data-item={item.id} onClick={()=>{this.itemClickHandler(item.id)}} title={item.node}><i className="fas fa-circle" style={{"fontSize":"7pt", "margin": "3px"}}></i>Товар №{item.itemCode} "{item.name}"</h4>
+        {this.props.view===constants.CATALOGUE_SEARCH_VIEW&&this.props.collection_type!==constants.GARBAGE_COLLECTION
+          ?<i className="fas fa-search" title="Показать в каталоге" onClick={()=>{this.chooseNodeByItem(item)}}></i>
+          :null
+        }
+        <h4 className={"list-item__title"} data-item={item.id} onClick={()=>{this.itemClickHandler(item.id)}} title={item.node}><i className={(parseInt(item.resource_count, 10)>0?"fas":"far")+" fa-circle"} style={{"fontSize":"7pt", "margin": "3px"}}></i>{item.itemCode} - {item.article} "{item.name}"</h4>
       </div>
     );
     let tooBroadMsg = this.props.items_filtered.length >= 100?"Показаны не все результаты. Необходимо сузить критерии поиска.":"";
@@ -75,18 +88,22 @@ const mapStateToProps = (state,props) =>{
   return {
     current_node: selectors.catalogue.getCurrentNode(state,props),
     current_item: selectors.catalogue.getItemObject(state,props)||selectors.localstorage.getStoredItem(state,props),
+    catalogue_data: selectors.catalogue.getCatalogueData(state,props),
     items: selectors.catalogue.getNodeItems(state,props),
     items_filtered: selectors.catalogue.filterItems(state,props),
     loading: selectors.catalogue.getLoadingItems(state,props),
     collection_type: selectors.catalogue.getCollectionType(state,props),
     catalogue_data: selectors.catalogue.getCatalogueData(state,props),
+    view: selectors.localstorage.getStoredCatalogueViewtype(state,props)
   }
 }
 
 const mapDispatchToProps = {
   chooseItem,
   chooseNode,
-  fetchItems
+  chooseCatalogueViewType,
+  fetchItems,
+  fetchRootNodes
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ItemList);

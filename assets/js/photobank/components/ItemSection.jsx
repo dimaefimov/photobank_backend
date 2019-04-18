@@ -67,7 +67,7 @@ export class ItemSection extends React.Component{
       <div className = {"item-view"} >
       <div className="file-list__drop-target" id={"drop_target" + this.props.item.id}></div>
       {
-        !this.props.render_existing
+        !this.props.collapsible_existing
         ?<button type="button" className="item-view__collapse-button" onClick={()=>{this.setState({"open": !this.state.open})}}>
           {this.state.open? "Скрыть": "Показать"}
          </button>
@@ -80,8 +80,7 @@ export class ItemSection extends React.Component{
           this.state.open
           ? "item-view__inner--open "
           : "item-view__inner--closed ") + this.containerViewClasses[this.props.view]}>
-          {this.props.render_existing&&viewBtn}
-          {this.props.render_existing?<ExistingResources authorized={this.props.authorized} key={this.props.item.id} item_id={this.props.item.id} addDownloadHandler={this.props.addDownloadHandler} default_view={this.props.view} />:null}
+          {viewBtn}<ExistingResources authorized={this.props.authorized} key={this.props.item.id} item_id={this.props.item.id} addDownloadHandler={this.props.addDownloadHandler} default_view={this.props.view} />
         {!render_upload?null:<h4 className="item-view__subheader">Загрузки</h4>}
       {!render_upload?null:<Uploads key={"uploads"+this.props.item.id} item_id={this.props.item.id} item={this.props.item} collection_type={this.props.collection_type} />}
       </div> </div>
@@ -95,7 +94,7 @@ const mapStateToProps = (state, props) =>{
     item: selectors.catalogue.getItemObject(state,props),
     view: selectors.localstorage.getStoredListViewtype(state,props),
     resumable: selectors.upload.getResumableInstance(state,props),
-    render_existing: (typeof props.render_existing !== 'undefined')?props.render_existing:true,
+    collapsible_existing: (typeof props.collapsible_existing !== 'undefined')?props.collapsible_existing:true,
     authorized: selectors.user.getAuthorized(state,props),
     open_by_default: (typeof props.open_by_default !== 'undefined')?props.open_by_default:true,
     collection_type: selectors.catalogue.getCollectionType(state,props),
