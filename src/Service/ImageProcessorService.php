@@ -70,14 +70,10 @@ private $fileSystem;
   {
 
     $repository = $this->entityManager->getRepository(Resource::class);
-    $processed = $repository->findBy(['gid'=>$resourceId]);
     $resource = $repository->findOneBy(['id'=>$resourceId]);
+    $processed = $repository->findBy(['gid'=>$resourceId, 'preset'=>$presetId]);
 
-    $processedPresets = array();
-    foreach($processed as $p){
-      array_push($processedPresets, $p->getPreset());
-    }
-    if(!in_array($presetId, $processedPresets)){
+    if(sizeof($processed)==0){
       $this->_savePreset($resource,$presetId);
     }
 

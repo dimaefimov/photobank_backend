@@ -148,6 +148,42 @@ class ResourceRepository extends ServiceEntityRepository
       return $queryBuilder->getQuery()->getOneOrNullResult();
     }
 
+    public function getByItemPriorityPresetOptimized($item,$priority,$preset){
+      if($preset != 0){
+        $type = 4;
+        $join = 'INNER JOIN '.$this->_entityName.' r2';
+        $joincond = 'AND r2.gid = r.gid';
+        $ent = 'r2';
+      }elseif($priority == 1){
+        $type = 1;
+        $join = '';
+        $joincond = '';
+        $ent = 'r';
+      }else{
+        $type = 2;
+        $join = '';
+        $joincond = '';
+        $ent = 'r';
+      }
+
+      $sql =
+      'SELECT r.src_filename as src_fn, r.path as filepath
+      FROM '.$this->_entityName.' r
+      '.$join.'
+      WHERE r.item = '.$item.'
+      '.$joincond.'
+      AND '.$ent.'.type = '.$type.'
+      AND '.$ent.'.priority = '.($priority-1).'
+      AND r.preset = '.$preset;
+
+      $query = $this->getEntityManager()->createQuery($sql);
+
+      $result = $query->execute()[0];
+
+      return $result;
+    }
+
+
     /**
     * Выполняет поиск ресурсов по ряду полей из формы
     *
