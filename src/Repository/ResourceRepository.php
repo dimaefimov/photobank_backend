@@ -12,6 +12,8 @@ use App\Entity\CatalogueNodeItem;
 use App\Entity\GarbageNode;
 use Doctrine\ORM\Query\Expr\Join;
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
+
 /**
 * Репозиторий Doctrine ORM для работы с сущностями типа "Resource"
 *
@@ -153,8 +155,11 @@ class ResourceRepository extends ServiceEntityRepository
           $queryBuilder->setParameter('p',$priority-1);
         }
       }
-      $result = $queryBuilder->getQuery()->getResult()[$index];
-      return $result;
+      $result = $queryBuilder->getQuery()->getResult();
+      if(sizeof($result)<$index){
+        throw new HttpException(404);
+      }
+      return $result[$index];
     }
 
     public function getByItemPriorityPresetOptimized($item,$priority,$preset){
@@ -187,9 +192,11 @@ class ResourceRepository extends ServiceEntityRepository
 
       $query = $this->getEntityManager()->createQuery($sql);
 
-      $result = $query->execute()[0];
-
-      return $result;
+      $result = $query->execute();
+      if(!sizeof($result)){
+        throw new \Exception(404);
+      }
+      return $result[0];
     }
 
 
