@@ -147,7 +147,7 @@ class ResourceRepository extends ServiceEntityRepository
         $queryBuilder->andWhere($ent.'.type = :t')
         ->setParameter('t',2)
         ->andWhere($ent.'.priority = :p');
-        if(!is_int($priority)){
+        if(!is_numeric($priority)){
           $queryBuilder->setParameter('p',0);
           $index = ltrim($priority, 'a');
           $usorted = true;
