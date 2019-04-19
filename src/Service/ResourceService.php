@@ -291,19 +291,26 @@ class ResourceService{
 
   public function getItemResourcesMetadata($codes)
   {
+    $unsorted_index = 0;
     $repo = $this->entityManager->getRepository(Resource::class);
-    foreach($codes as $code){
+    for($i = 0; $i<sizeof($codes); $i++){
+      $code = $codes[$i];
       $fetched = $repo->getExistingResourcesOptimized($code);
       $data[$code] = [];
-      foreach($fetched as $row){
+      for($j = 0; $j<sizeof($fetched); $j++){
+        $row = $fetched[$j];
         $presets = explode(',',$row['presets']);
-        $presets = array_map(function($p){
-          return (int)$p;
-        }, $presets);
+        for($y = 0; $y<sizeof($presets); $y++){
+            $presets[$y] = (int)$presets[$y];
+        }
         if($row['type'] == '1'){
           $priority = 1;
-        }elseif($row['type'] == '2' && $row['priority'] != '0'){
-          $priority = (int)$row['priority'] + 1;
+        }elseif($row['type'] == '2'){
+          if($row['priority'] != '0'){
+            $priority = (int)$row['priority'] + 1;
+          }else{
+            $priority = 'a'.$unsorted_index++;
+          }
         }
         $data[$code][$priority] = $presets;
       }

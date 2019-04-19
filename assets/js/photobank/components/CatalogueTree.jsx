@@ -58,8 +58,10 @@ export class CatalogueTree extends React.Component {
    * @param {Number} type Тип представления
    */
   handleViewChoice = (type)=>{
-    if(3===parseInt(type,10)){
+    if(constants.CATALOGUE_SEARCH_VIEW===parseInt(type,10)){
       this.props.chooseNode(null, this.props.catalogue_data, this.props.collection_type);
+    }else{
+      this.props.chooseNode(this.props.current_node, this.props.catalogue_data, this.props.collection_type);
     }
     this.props.chooseCatalogueViewType(type);
   }

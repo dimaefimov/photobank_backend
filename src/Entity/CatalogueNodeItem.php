@@ -82,6 +82,11 @@ class CatalogueNodeItem
         return $this->resources;
     }
 
+    public function getOriginalResources()
+    {
+        return array_filter($this->getResources()->toArray(),function($res){return $res->getType()!==4;});
+    }
+
     public function addResource(Resource $resource): self
     {
         if (!$this->resources->contains($resource)) {

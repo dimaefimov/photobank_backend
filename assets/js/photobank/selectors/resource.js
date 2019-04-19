@@ -11,8 +11,12 @@ export const loadingResources = (store,props)=>store.resource.get('fetching_reso
 export const loadingPresets = (store,props)=>store.resource.get('fetching_presets');
 export const downloads = (store,props)=>store.resource.get('downloads');
 
-export const getExisting = createSelector(existingResources,(existing)=>{
-  existing = existing.sort((a,b)=>{
+export const getExisting = createSelector(existingResources, itemId,(existing, id)=>{
+  let resources = existing.get(id);
+  if(!resources){
+    return [];
+  }
+  resources = resources.sort((a,b)=>{
     let val = 0;
     if(a.type===2&&b.type===2){
         val = a.priority>b.priority?1:(b.priority>a.priority?-1:a.src_filename.localeCompare(b.src_filename));
@@ -21,20 +25,23 @@ export const getExisting = createSelector(existingResources,(existing)=>{
       val = a.type>b.type?1:b.type>a.type?-1:a.src_filename.localeCompare(b.src_filename);
     }return val;
   });
-  return existing.toArray();
+  return resources;
 });
 
-export const getFinishedPresets = createSelector(finishedPresets, resourceId, (finished, id)=>{
-  let response = finished;
+export const getFinishedPresets = createSelector(finishedPresets, resourceId, itemId, (finished, id, iid)=>{
+  let presets = finished.get(iid);
+  if(!presets){
+    return [];
+  }
   if(id){
-    response = response.filter(preset=>{
+    presets = presets.filter(preset=>{
       return preset.resource===id;
     }).map(preset=>{
       preset.link = utility.config['resource_url']+ preset.id+".jpg";
       return preset;
     });
   }
-  return response.toArray();
+  return presets;
 });
 
 export const getMaxMainResources = createSelector(()=>{
@@ -46,15 +53,23 @@ export const getMaxAddResources = createSelector(()=>{
 });
 
 export const getCurrentMainResources = createSelector(existingResources, itemId, (existing, id)=>{
-  return existing.filter(resource=>{
+  let resources = existing.get(id);
+  if(!resources){
+    return 0;
+  }
+  return resources.filter(resource=>{
     return resource.type===1&&resource.item===id;
-  }).size;
+  }).length;
 });
 
 export const getCurrentAddResources = createSelector(existingResources, itemId, (existing, id)=>{
-  return existing.filter(resource=>{
+  let resources = existing.get(id);
+  if(!resources){
+    return 0;
+  }
+  return resources.filter(resource=>{
     return resource.type===2&&resource.item===id;
-  }).size;
+  }).length;
 });
 
 export const getLoadingResources = createSelector(loadingResources, (loading)=>{

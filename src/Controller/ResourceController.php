@@ -184,7 +184,7 @@ class ResourceController extends AbstractController
      *      name="catalogue_node_item_resource_by_priority_raw",
      *      requirements={
      *          "id"="\d+",
-     *          "_priority"="\d{1,100}",
+     *          "_priority"="[a-zA-Z0-9]{1,3}",
      *          "_preset"="\d{1,3}",
      *          "_format": "jpg|json|bool"
      *      }

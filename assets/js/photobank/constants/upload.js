@@ -28,8 +28,8 @@ export const NODE_REBASE = 'NODE_REBASE';
 export const NODE_RESTORE = 'NODE_RESTORE';
 export const SHOW_DELETED = 'SHOW_DELETED';
 
-export const CATALOGUE_TREE_VIEW = 1;
-export const CATALOGUE_LIST_VIEW = 2;
+export const CATALOGUE_TREE_VIEW = 2;
+export const CATALOGUE_LIST_VIEW = 1;
 export const CATALOGUE_SEARCH_VIEW = 3;
 
 export const CATALOGUE_COLLECTION = 0;

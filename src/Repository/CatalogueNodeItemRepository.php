@@ -39,7 +39,7 @@ class CatalogueNodeItemRepository extends ServiceEntityRepository
       $queryBuilder = $this->createQueryBuilder('c');
       if($queryObject->getField("name") != ""){
         $queryBuilder->andWhere('c.name LIKE :name')
-        ->setParameter('name', $queryObject->getField("name").'%');
+        ->setParameter('name', '%'.$queryObject->getField("name").'%');
       }
       if(sizeof($queryObject->getField("code")) !== 0){
         $codeCounter = 0;
@@ -52,8 +52,8 @@ class CatalogueNodeItemRepository extends ServiceEntityRepository
         $articleCounter = 0;
         foreach($queryObject->getField("article") as $article){
             $articleCounter==0
-            ?$queryBuilder->andWhere('c.article = :article'.$articleCounter)
-              ->setParameter('article'.$articleCounter++, $article)
+            ?$queryBuilder->andWhere('c.article LIKE :article'.$articleCounter)
+              ->setParameter('article'.$articleCounter++, '%'.$article.'%')
             :$queryBuilder->orWhere('c.article = :article'.$articleCounter)
               ->setParameter('article'.$articleCounter++, $article);
         }
@@ -91,8 +91,8 @@ class CatalogueNodeItemRepository extends ServiceEntityRepository
        ->setParameter('pname', '%'.$queryObject->getField("parent_name").'%')
        ->setParameter('pcode', '%'.$queryObject->getField("parent_name"));
      }
-     //var_dump($queryObject);
-      //var_dump($queryBuilder->getDQL());
+     // var_dump($queryObject);
+     //  var_dump($queryBuilder->getDQL());
       return $queryBuilder->setMaxResults(100)->getQuery()->getResult();
 
     }

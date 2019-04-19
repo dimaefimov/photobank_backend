@@ -12,6 +12,8 @@ use App\Entity\CatalogueNodeItem;
 use App\Entity\GarbageNode;
 use Doctrine\ORM\Query\Expr\Join;
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
+
 /**
 * Репозиторий Doctrine ORM для работы с сущностями типа "Resource"
 *
@@ -126,6 +128,8 @@ class ResourceRepository extends ServiceEntityRepository
 
     public function getByItemPriorityPreset($item,$priority,$preset){
       $ent = 'r';
+      $unsorted = false;
+      $index = 0;
       $queryBuilder = $this->createQueryBuilder($ent)
       ->andWhere('r.item = :i')
       ->setParameter('i', $item);
@@ -142,11 +146,59 @@ class ResourceRepository extends ServiceEntityRepository
       }else{
         $queryBuilder->andWhere($ent.'.type = :t')
         ->setParameter('t',2)
-        ->andWhere($ent.'.priority = :p')
-        ->setParameter('p',$priority-1);
+        ->andWhere($ent.'.priority = :p');
+        if(!is_int($priority)){
+          $queryBuilder->setParameter('p',0);
+          $index = ltrim($priority, 'a');
+          $usorted = true;
+        }else{
+          $queryBuilder->setParameter('p',$priority-1);
+        }
       }
-      return $queryBuilder->getQuery()->getOneOrNullResult();
+      $result = $queryBuilder->getQuery()->getResult();
+      if(sizeof($result)<$index){
+        throw new HttpException(404);
+      }
+      return $result[$index];
     }
+
+    public function getByItemPriorityPresetOptimized($item,$priority,$preset){
+      if($preset != 0){
+        $type = 4;
+        $join = 'INNER JOIN '.$this->_entityName.' r2';
+        $joincond = 'AND r2.gid = r.gid';
+        $ent = 'r2';
+      }elseif($priority == 1){
+        $type = 1;
+        $join = '';
+        $joincond = '';
+        $ent = 'r';
+      }else{
+        $type = 2;
+        $join = '';
+        $joincond = '';
+        $ent = 'r';
+      }
+
+      $sql =
+      'SELECT r.src_filename as src_fn, r.path as filepath
+      FROM '.$this->_entityName.' r
+      '.$join.'
+      WHERE r.item = '.$item.'
+      '.$joincond.'
+      AND '.$ent.'.type = '.$type.'
+      AND '.$ent.'.priority = '.($priority-1).'
+      AND r.preset = '.$preset;
+
+      $query = $this->getEntityManager()->createQuery($sql);
+
+      $result = $query->execute();
+      if(!sizeof($result)){
+        throw new \Exception(404);
+      }
+      return $result[0];
+    }
+
 
     /**
     * Выполняет поиск ресурсов по ряду полей из формы

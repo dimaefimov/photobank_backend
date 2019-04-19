@@ -42,7 +42,7 @@ export class ExistingResources extends React.Component{
    * Запрашивает список сгенерированных пресетов для ресурсов товара
    */
   fetchPresets = ()=>{
-    this.props.fetchPresets({start:this.state.pagination_start, end:this.state.pagination_end}, this.props.existing);
+    this.props.fetchPresets({start:this.state.pagination_start, end:this.state.pagination_end}, this.props.existing, this.props.item_id);
   }
 
   /**
@@ -173,7 +173,7 @@ const mapStateToProps = (state,props) =>{
     existing: selectors.resource.getExisting(state,props),
     loading: selectors.resource.getLoadingPresets(state,props)||false,
     collection_type: selectors.catalogue.getCollectionType(state,props),
-    pag_limit: selectors.catalogue.getPaginationLimit(state,props)
+    pag_limit: selectors.catalogue.getPaginationLimit(state,props),
   }
 }
 

@@ -42,6 +42,7 @@
 @mixin list-item(){
   padding:7px 15px;
   h4{
+    display: inline;
     margin:0;
   }
 }

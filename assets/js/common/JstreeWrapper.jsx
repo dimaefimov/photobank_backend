@@ -9,11 +9,12 @@ class JSTree extends React.Component {
     super(props);
     this.baseSettings = { core: { data: [] }, 'selected':[]};
     this.state = {
-      settings : this.baseSettings
+      settings : this.baseSettings,
+      scrolled: false
     };
     this.treeContainer = React.createRef();
     this.crudPlugins = ['contextmenu', 'dnd', 'themes', 'html_data'];
-    this.basePlugins = ['themes', 'html_data', 'state'];
+    this.basePlugins = ['themes', 'html_data'];
   }
 
   makeTree=()=>{
@@ -171,6 +172,12 @@ class JSTree extends React.Component {
           data.instance.settings.core.data.find(item=>item.id===data.node.id).state.opened = data.node.state.opened;
           data.instance.refresh(true);
       });
+      $(this.treeContainer).on('loaded.jstree', (e, data) => {
+        if(!this.state.scrolled){
+          this.setState({scrolled:true});
+          this.scrollToSelected();
+        }
+      });
       $(this.treeContainer).on('deselect_all.jstree', (e, data) => {
           // jstree - бессмысленный и беспощадный. Не трогай эту строчку
           if(data.node.length===2)data.instance.refresh(true);
@@ -178,8 +185,16 @@ class JSTree extends React.Component {
     }
   }
 
+  scrollToSelected = ()=>{
+    let active = $('li.jstree-node[aria-selected=true]');
+    let parent = $(this.treeContainer).parent().parent().parent();
+    if(active.position()){
+      parent.scrollTop(parent.scrollTop() + active.position().top - parent.height()/2 + active.height()/2);
+    }
+  }
+
   componentDidMount() {
-    let treeData = this.makeTree();
+    this.makeTree();
     this.assignHandlers();
   }
 
