@@ -65,6 +65,14 @@ export default (upload = defaultState, action) => {
       return upload.set('resumable_container',container)
       break;
     }
+    case CLEAR_RESUMABLE_EVENTS:{
+      let container = List(upload.get('resumable_container'));
+      let resumable = container.find(resumable=>resumable.get('id')===action.payload);
+      let newInstance = resumable.get('instance').set('events', []);
+      container = container.splice(container.indexOf(resumable),1,newInstance);
+      return upload.set('resumable_container',container);
+      break;
+    }
     case RESUMABLE_POP:{
       let itemId = action.payload;
       let container = List(upload.get('resumable_container'));
