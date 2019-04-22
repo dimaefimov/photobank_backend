@@ -105,7 +105,7 @@ export class Uploads extends React.Component{
   }
 
   componentWillUnmount(){
-    this.props.clearResumableEvents(this.props.items.id);
+    this.props.clearResumableEvents(this.props.item.id);
   }
 
   render() {
