@@ -30,6 +30,7 @@ import {
   NODE_RESTORE,
   NODE_REBASE,
   SHOW_DELETED,
+  CLEAR_RESUMABLE_EVENTS,
   START,
   SUCCESS,
   FAIL,
@@ -862,6 +863,15 @@ export function showDeletedNodes(val){
     dispatch({
       type: SHOW_DELETED,
       payload:val
+    });
+  };
+}
+
+export function clearResumableEvents(id){
+  return dispatch=>{
+    dispatch({
+      type: CLEAR_RESUMABLE_EVENTS,
+      payload:id
     });
   };
 }

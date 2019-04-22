@@ -6,7 +6,7 @@ import UnfinishedUploads from './UnfinishedUploads';
 import { UploadService } from '../services/UploadService';
 import { NotificationService} from '../../services/NotificationService';
 import selectors from '../selectors';
-import {completeUpload, deleteUpload, deleteUnfinishedUploads, prepareFileForUpload} from '../actionCreator';
+import {completeUpload, clearResumableEvents, deleteUpload, deleteUnfinishedUploads, prepareFileForUpload} from '../actionCreator';
 /**
  * Компонент работы с активными и незаконченными загрузками
  */
@@ -105,7 +105,7 @@ export class Uploads extends React.Component{
   }
 
   componentWillUnmount(){
-    this.props.resumable.events = [];
+    this.props.clearResumableEvents(this.props.items.id);
   }
 
   render() {
@@ -178,7 +178,8 @@ const mapDispatchToProps = {
   prepareFileForUpload,
   deleteUpload,
   completeUpload,
-  deleteUnfinishedUploads
+  deleteUnfinishedUploads,
+  clearResumableEvents
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Uploads);
