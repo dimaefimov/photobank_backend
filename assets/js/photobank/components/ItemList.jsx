@@ -59,14 +59,15 @@ export class ItemList extends React.Component{
   render() {
     let nodeItemList = this.props.items
     .filter((item)=>{if(!this.state.filter_query) return true; return JSON.stringify(item).toLowerCase().includes(this.state.filter_query.toLowerCase());})
-    .map((item)=>
-      <div className={"list-item"+((this.props.current_item!=null&&item.id===this.props.current_item.id)?" list-item--active":"")} key={item.id} data-item={item.id} onClick={()=>{this.itemClickHandler(item.id)}}>
+    .sort((a, b)=>a.resource_count==0?(b.resource_count==0?0:1):(b.resource_count==0?-1:0))
+    .map((item)=>{
+      return <div className={"list-item"+((this.props.current_item!=null&&item.id===this.props.current_item.id)?" list-item--active":"")} key={item.id} data-item={item.id} onClick={()=>{this.itemClickHandler(item.id)}}>
         {this.props.view===constants.CATALOGUE_SEARCH_VIEW&&this.props.collection_type!==constants.GARBAGE_COLLECTION
           ?<i className="fas fa-search" title="Показать в каталоге" onClick={()=>{this.chooseNodeByItem(item)}}></i>
           :null
         }
         <h4 className={"list-item__title"} data-item={item.id} onClick={()=>{this.itemClickHandler(item.id)}} title={item.node}><i className={(parseInt(item.resource_count, 10)>0?"fas":"far")+" fa-circle"} style={{"fontSize":"7pt", "margin": "3px"}}></i>{item.itemCode} - {item.article} "{item.name}"</h4>
-      </div>
+      </div>}
     );
     let tooBroadMsg = this.props.items_filtered.length >= 100?"Показаны не все результаты. Необходимо сузить критерии поиска.":"";
     return (

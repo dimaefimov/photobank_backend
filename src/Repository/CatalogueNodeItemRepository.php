@@ -48,15 +48,9 @@ class CatalogueNodeItemRepository extends ServiceEntityRepository
             ->setParameter('code'.$codeCounter++, '%'.$code);
         }
       }
-      if(sizeof($queryObject->getField("article")) !== 0){
-        $articleCounter = 0;
-        foreach($queryObject->getField("article") as $article){
-            $articleCounter==0
-            ?$queryBuilder->andWhere('c.article LIKE :article'.$articleCounter)
-              ->setParameter('article'.$articleCounter++, '%'.$article.'%')
-            :$queryBuilder->orWhere('c.article = :article'.$articleCounter)
-              ->setParameter('article'.$articleCounter++, $article);
-        }
+      if($queryObject->getField("article") != ""){
+        $queryBuilder->andWhere('c.article LIKE :article')
+        ->setParameter('article', '%'.$queryObject->getField("article").'%');
       }
       if($queryObject->getField("parent_name") != "" && $queryObject->getField("search_nested") == 0){
         $queryBuilder->leftJoin('c.node', 'parentn')

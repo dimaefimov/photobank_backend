@@ -263,20 +263,20 @@ class ResourceService{
   }
 
   public function bulkGetAllPresets($resources){
-    $presets = $this->container->getParameter('presets');
     $response = [];
-    foreach($resources as $resource){
-      foreach($presets as $preset){
-        $res_preset = $this->entityManager->getRepository(Resource::class)->findOneBy([
-          'gid'=>$resource,
-          'preset'=>$preset['id']
-        ]);
-        $res_preset&&$response[] = [
-          'id'=>$res_preset->getId(),
-          'resource'=>$resource,
-          'preset'=>$preset['id']
+    $repo = $this->entityManager->getRepository(Resource::class);
+    for($i=0; $i<sizeof($resources); $i++){
+      $presets = $repo->findBy([
+        'gid'=>$resources[$i],
+        'type'=>4
+      ]);
+      $response = array_merge($response, array_map(function($preset)use($resources, $i){
+        return [
+          'id'=>$preset->getId(),
+          'resource'=>$resources[$i],
+          'preset'=>$preset->getPreset()
         ];
-      }
+      }, $presets));
     }
     return $response;
   }

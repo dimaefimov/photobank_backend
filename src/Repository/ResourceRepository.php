@@ -249,14 +249,11 @@ class ResourceRepository extends ServiceEntityRepository
           }
           $garbageCodeCounter = 0;
         }
-        if(null!==$queryObject->getField("item_query")->getField("article")&&sizeof($queryObject->getField("item_query")->getField("article"))>0){
-          $articleCounter = 0;
+        if(""!==$queryObject->getField("item_query")->getField("article")){
           $queryBuilder->innerJoin('r.item', 'ia');
-          foreach($queryObject->getField("item_query")->getField("article") as $article){
-              $queryBuilder
-              ->orWhere('ia.article = :article'.$articleCounter)
-              ->setParameter('article'.$articleCounter++, $article);
-          }
+          $queryBuilder
+          ->orWhere('ia.article = :article')
+          ->setParameter('article', $queryObject->getField("item_query")->getField("article"));
         }
         if($queryObject->getField("item_query")->getField("parent_name") != "" && $queryObject->getField("item_query")->getField("search_nested") == "false"){
           $queryBuilder->innerJoin('r.item', 'in')
@@ -325,7 +322,7 @@ class ResourceRepository extends ServiceEntityRepository
         $db_name = $connection->getDatabase();
         $table_name = $em->getClassMetadata($this->_entityName)->getTableName();
 
-        $sql = 'SELECT GROUP_CONCAT(preset) presets, MIN(r.`type`) type, MAX(r.`priority`) priority FROM '.$db_name.'.'.$table_name.' r WHERE r.item_id = "'.$code.'" GROUP BY r.`gid`;';
+        $sql = 'SELECT MIN(r.`gid`), GROUP_CONCAT(preset) presets, MIN(r.`type`) type, MAX(r.`priority`) priority FROM '.$db_name.'.'.$table_name.' r WHERE r.item_id = "'.$code.'" GROUP BY r.`gid`;';
         $query = $connection->prepare($sql);
         $query->execute();
         $response = $query->fetchAll();

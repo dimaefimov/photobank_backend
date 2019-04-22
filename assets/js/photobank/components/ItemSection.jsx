@@ -22,7 +22,7 @@ export class ItemSection extends React.Component{
     this.containerViewClasses = ['item-view__inner--icons-lg ','item-view__inner--icons-sm ','item-view__inner--detailed '];
     this.fileViewClasses = ['file--icons-lg ','file--icons-sm ','file--detailed '];
     this.state = {
-      open:this.props.open_by_default
+      open:this.props.open_by_default,
     }
   }
 
@@ -63,6 +63,11 @@ export class ItemSection extends React.Component{
         </button>
       </div>
     )
+
+    let article = this.props.item.article||"";
+
+    let itemTitle = (this.props.collection_type===0?(this.props.item.id+" - "+article+" "):"")+this.props.item.name;
+
     return (
       <div className = {"item-view"} >
       <div className="file-list__drop-target" id={"drop_target" + this.props.item.id}></div>
@@ -74,7 +79,7 @@ export class ItemSection extends React.Component{
         :null
       } {
           !!this.props.item
-          ? <div className="item-view__item-title">{this.props.collection_type===0?("Товар #"+this.props.item.id):""}"{this.props.item.name}"</div>
+          ? <div className="item-view__item-title">{itemTitle}</div>
           : null
       }<div className={"item-view__inner " + (
           this.state.open
