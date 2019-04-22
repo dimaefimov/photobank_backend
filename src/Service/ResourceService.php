@@ -311,6 +311,8 @@ class ResourceService{
           }else{
             $priority = 'a'.$unsorted_index++;
           }
+        }else{
+          continue;
         }
         $data[$code][$priority] = $presets;
       }
