@@ -249,14 +249,11 @@ class ResourceRepository extends ServiceEntityRepository
           }
           $garbageCodeCounter = 0;
         }
-        if(null!==$queryObject->getField("item_query")->getField("article")&&sizeof($queryObject->getField("item_query")->getField("article"))>0){
-          $articleCounter = 0;
+        if(""!==$queryObject->getField("item_query")->getField("article")){
           $queryBuilder->innerJoin('r.item', 'ia');
-          foreach($queryObject->getField("item_query")->getField("article") as $article){
-              $queryBuilder
-              ->orWhere('ia.article = :article'.$articleCounter)
-              ->setParameter('article'.$articleCounter++, $article);
-          }
+          $queryBuilder
+          ->orWhere('ia.article = :article')
+          ->setParameter('article', $queryObject->getField("item_query")->getField("article"));
         }
         if($queryObject->getField("item_query")->getField("parent_name") != "" && $queryObject->getField("item_query")->getField("search_nested") == "false"){
           $queryBuilder->innerJoin('r.item', 'in')
