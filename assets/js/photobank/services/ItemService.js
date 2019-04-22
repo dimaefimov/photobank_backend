@@ -16,7 +16,7 @@ class ItemService{
   static fetchItems(query){
     return new Promise((resolve, reject)=>{
         this._getItems(query)
-.then((data)=>{
+        .then((data)=>{
           if(data.length == 0){resolve([])}
           resolve(data);
         }).catch((e)=>{
@@ -53,7 +53,7 @@ class ItemService{
         }).catch((e)=>{reject([])});
       }else{
         let fetchBody = {"item_search_name":queryObject.name||"","item_search_code":queryObject.code||"","item_search_parent_name":queryObject.parent_name||"","item_search_search_nested":queryObject.search_nested, "item_search_article":queryObject.article||""};
-        let getParams = "?"+Object.entries(fetchBody).map(entry=>entry[0]+"="+entry[1]).join("&");
+        let getParams = "?"+Object.entries(fetchBody).map(entry=>entry[0]+"="+encodeURIComponent(entry[1])).join("&");
         fetch(utility.config.item_search_url+getParams)
         .then((response)=>response.json())
         .then((data)=>{
