@@ -106,7 +106,7 @@ class UploadService{
         let identifier = hex_md5(hashable+item.id + file.file.size);
         resolve(identifier);
       };
-      reader.readAsArrayBuffer(fileObj);
+      reader.readAsArrayBuffer(fileObj.slice(0,100000000));
     });
   }
 
