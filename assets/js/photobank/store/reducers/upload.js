@@ -10,6 +10,7 @@ import {
   UPLOAD_DELETE,
   DELETE_ALL_PENDING,
   DELETE_ALL_UNFINISHED,
+  CLEAR_RESUMABLE_EVENTS,
   PURGE_EMPTY_ITEMS,
   SUCCESS,
   FAIL
@@ -67,9 +68,13 @@ export default (upload = defaultState, action) => {
     }
     case CLEAR_RESUMABLE_EVENTS:{
       let container = List(upload.get('resumable_container'));
-      let resumable = container.find(resumable=>resumable.get('id')===action.payload);
+      let resumable = container.find(resumable=>{console.log(resumable.get('id'),action.payload, resumable.get('id')===action.payload);return resumable.get('id')===action.payload});
+      if(!resumable){
+        return upload;
+      }
       let newInstance = resumable.get('instance').set('events', []);
-      container = container.splice(container.indexOf(resumable),1,newInstance);
+      let newResumable = resumable.set('instance', newInstance);
+      container = container.splice(container.indexOf(resumable),1,newResumable);
       return upload.set('resumable_container',container);
       break;
     }
