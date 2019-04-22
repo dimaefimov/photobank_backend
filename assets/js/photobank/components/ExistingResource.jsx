@@ -68,10 +68,12 @@ export class ExistingResource extends React.Component {
    * Обработчик начала установки приоритета ресурса
    * @param  {[type]} e Событие клика
    */
-  handlePriority = ()=>{
+  handlePriority = (e)=>{
+    e.stopPropagation();
+    e.preventDefault();
     if(!this.props.authorized){return}
     this.setState({
-      "priority_active": true
+      "priority_active": !this.state.priority_active
     });
   }
 
@@ -91,7 +93,7 @@ export class ExistingResource extends React.Component {
 
   /**
    * Обработчик установки приоритета 1C дополнительного ресурса
-   * @param  {Event} e Событие клика
+   * @param  {int} priority
    */
   handlePriorityUpdate = (priority)=>{
     this.props.updateResourceField({
@@ -100,16 +102,15 @@ export class ExistingResource extends React.Component {
       value:priority,
       item:this.props.item_id,
     }, this.props.collection_type);
-    this.setState({
-      "priority_active": false
-    });
   }
 
-  componentDidUpdate(prevProps){
-    if(this.state.priority_active && prevProps.file!==this.props.file){
-      this.setState({
-        "priority_active": false
-      });
+  componentDidUpdate(prevProps,prevState){
+    if(this.state.priority_active&&!prevState.priority_active){
+      let handler = ()=>{
+        this.setState({priority_active: false});
+        removeEventListener('click', handler, false);
+      };
+      window.addEventListener("click", handler, false);
     }
   }
 
@@ -123,7 +124,7 @@ export class ExistingResource extends React.Component {
       let presetId = utility.config['presets'][preset]['id'];
       let finished = this.props.finished_presets.find(finished=>finished.resource===this.props.file.id&&finished.preset===presetId);
       presets.push(
-        <span key={this.props.file.id+"-"+presetId} className={"info__info-field info__info-field--preset "+finished?"info__info-field--preset-done":"info__info-field--preset-not-done"}>
+        <span key={this.props.file.id+"-"+presetId} className={"info__info-field info-field info__info-field--preset "+(finished?"info__info-field--preset-done":"info__info-field--preset-not-done")}>
           {finished
             ?<span className="existing-download">
               <span className="existing-download-controls">
@@ -158,7 +159,7 @@ export class ExistingResource extends React.Component {
       ];
     }
     return ((<div className={"existing-files__file file " + this.fileViewClasses[this.props.view]} key={this.props.file.src_filename + this.props.file.filename}>
-      <a className="file__file-name" href={utility.config.resource_url + this.props.file.id + ".jpg"} target="_blank">
+      <a className="file__file-name info-field" title={this.props.file.src_filename} href={utility.config.resource_url + this.props.file.id + ".jpg"} target="_blank">
         <div className="file__thumbnail" style={{"backgroundImage" : "url(" + (this.props.finished_presets[0]?this.props.finished_presets[0].link:utility.config.placeholder_url) + ")"}}></div>
       {constants.RESOURCES_TABLE_VIEW!==this.props.view ? dlControls : null}
         {this.props.file.src_filename}

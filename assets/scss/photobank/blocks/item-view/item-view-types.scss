@@ -182,7 +182,6 @@
     }
     &--detailed{
       .item-resources{
-        overflow-y: auto;
         width:95%;
       }
       .existing-files{
@@ -259,6 +258,7 @@
         }
         .edit-input{
           &__priority-btn{
+            cursor: pointer;
             padding:5px;
           }
           &__context-menu{
@@ -294,6 +294,31 @@
           }
         }
       }
+
+      //ВЕРТИКАЛЬНАЯ ТАБЛИЦА
+
+      .existing-files.vertical-table{
+        display:flex;
+        .item-view__table-header, .existing-files__file{
+          display: flex;
+          flex-direction: column;
+        }
+        .edit-input, .info-field{
+          flex: 0 0 40px;
+          min-width: 110px !important;
+          width: 110px !important;
+          border:1px solid #e9ebed;
+          border-width: 1px 1px 0 0 ;
+          select{
+                width: 75%;
+          }
+          &.info__info-field--uploaddate{
+            font-size: 11px;
+          }
+        }
+
+      }
+
       .item-uploads{
         position: relative;
         width: 100%;

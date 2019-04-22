@@ -33,6 +33,7 @@ export class ExistingResources extends React.Component{
       "pagination_end": 20,
       "pagination_current_page": 1,
       "pagination_total_pages": 0,
+      "vert_table":false
     };
     this.containerViewClasses = ['item-view__inner--icons-lg ','item-view__inner--icons-sm ','item-view__inner--detailed '];
     this.paginationControls = "";
@@ -101,7 +102,7 @@ export class ExistingResources extends React.Component{
   componentDidMount(){
     let presets = [];
     for(var preset in utility.config['presets']){
-      presets.push(<span key={"preset"+preset} className="info__info-field info__info-field--title info__info-field--preset">{preset}</span>);
+      presets.push(<span key={"preset"+preset} className="info__info-field info-field info__info-field--title info__info-field--preset">{preset}</span>);
     }
     this.preset_headers = presets;
     this.props.fetchExisting(this.props.item_id, this.props.collection_type);
@@ -112,6 +113,10 @@ export class ExistingResources extends React.Component{
   }
 
   componentDidUpdate(prevProps, prevState){
+    let tableBreakPoint = 1700;
+    if(window.innerWidth < tableBreakPoint && !this.state.vert_table){
+      this.setState({vert_table:true});
+    }
     if(this.props.existing != prevProps.existing){
       this.setState({
         "pagination_total_pages": Math.ceil(this.props.existing.length/this.state.pagination_limit),
@@ -149,15 +154,15 @@ export class ExistingResources extends React.Component{
         {paginationControls}
         {this.props.existing.length==0?"Нет загруженных файлов":null}
         <div className={(this.props.loading?"loading ":"") + "item-resources"}>
-          <div className="item-view__file-list existing-files">
+          <div className={"item-view__file-list existing-files"+ (this.state.vert_table?" vertical-table":"")}>
             <div className="item-view__table-header">
-              <span className="info__info-field info__info-field--title info__info-field--sizepx">Имя файла</span>
-              <span className="info__info-field info__info-field--title info__info-field--type">Тип ресурса</span>
-              <span className="info__info-field info__info-field--title info__info-field--sizebytes">Размер изображения</span>
-              <span className="info__info-field info__info-field--title info__info-field--uploaddate">Дата создания</span>
-              <span className="info__info-field info__info-field--title info__info-field--username">Пользователь</span>
-              <span className="info__info-field info__info-field--title info__info-field--comment">Комментарий</span>
-            <span className="info__info-field info__info-field--title info__info-field--sizemb">original</span>
+              <span className="info__info-field info-field info__info-field--title info__info-field--sizepx">Имя файла</span>
+              <span className="info__info-field info-field info__info-field--title info__info-field--type">Тип ресурса</span>
+              <span className="info__info-field info-field info__info-field--title info__info-field--sizebytes">Размер</span>
+              <span className="info__info-field info-field info__info-field--title info__info-field--uploaddate">Дата создания</span>
+              <span className="info__info-field info-field info__info-field--title info__info-field--username">Пользователь</span>
+              <span className="info__info-field info-field info__info-field--title info__info-field--comment">Комментарий</span>
+            <span className="info__info-field info-field info__info-field--title info__info-field--sizemb">original</span>
               {this.preset_headers}
             </div>
             {files}

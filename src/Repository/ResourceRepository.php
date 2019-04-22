@@ -325,7 +325,7 @@ class ResourceRepository extends ServiceEntityRepository
         $db_name = $connection->getDatabase();
         $table_name = $em->getClassMetadata($this->_entityName)->getTableName();
 
-        $sql = 'SELECT GROUP_CONCAT(preset) presets, MIN(r.`type`) type, MAX(r.`priority`) priority FROM '.$db_name.'.'.$table_name.' r WHERE r.item_id = "'.$code.'" GROUP BY r.`gid`;';
+        $sql = 'SELECT MIN(r.`gid`), GROUP_CONCAT(preset) presets, MIN(r.`type`) type, MAX(r.`priority`) priority FROM '.$db_name.'.'.$table_name.' r WHERE r.item_id = "'.$code.'" GROUP BY r.`gid`;';
         $query = $connection->prepare($sql);
         $query->execute();
         $response = $query->fetchAll();

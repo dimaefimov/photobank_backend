@@ -28,10 +28,6 @@ class SearchQueryBuilder {
         preg_match_all("/[0-9]{1,11}/", $value, $value);
         $value = $value[0];
       }
-      if($key == "article"){
-        preg_match_all("/[0-9a-zA-Z\/\-\.]{3,15}/", $value, $value);
-        $value = $value[0];
-      }
       if(in_array($key, $fields)){
         $queryObject->setField($key, $value);
       }
