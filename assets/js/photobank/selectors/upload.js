@@ -9,7 +9,14 @@ export const resumableContainer = (store,props)=>store.upload.get('resumable_con
 
 export const getResumableInstance = createSelector(resumableContainer, currentItemId, (container, id)=>{
   let resumable = container.find(resumable=>resumable.get('id')===id);
-  return resumable?resumable.get('instance').toObject():null;
+  return resumable?resumable.get('instance'):null;
+});
+
+export const getResumableUploads = createSelector(resumableContainer, currentItemId, (container, id)=>{
+  let resumable = container.find(resumable=>resumable.get('id')===id);
+  let instance = resumable?resumable.get('instance'):null;
+  let files = instance?instance.files:[];
+  return files.slice();
 });
 
 export const getResumableContainer = createSelector(resumableContainer, (container)=>{
@@ -17,15 +24,10 @@ export const getResumableContainer = createSelector(resumableContainer, (contain
   return newContainer;
 });
 
-export const getUploads = createSelector(getResumableInstance, (resumable)=>{
-  return resumable.files;
-});
-
-export const getReadyUploads = createSelector(getResumableInstance, (resumable)=>{
-  return resumable.files.length>0?resumable.files.filter(file=>file.ready):[];
-});
-
-export const resolveResumedUploads = createSelector(unfinishedUploads, getUploads, currentItemId, (unfinished, pending, item)=>{
+export const resolveResumedUploads = createSelector(unfinishedUploads, resumableContainer, currentItemId, (unfinished, container, item)=>{
+  let resumable = container.find(resumable=>resumable.get('id')===item);
+  let instance = resumable?resumable.get('instance'):null;
+  let pending = instance.files;
   let resolved = unfinished.filter((upload)=>{
     if(upload.id!==item)return false;
     for(let i = 0; i<pending.length; i++){

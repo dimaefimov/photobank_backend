@@ -30,7 +30,6 @@ import {
   NODE_RESTORE,
   NODE_REBASE,
   SHOW_DELETED,
-  CLEAR_RESUMABLE_EVENTS,
   START,
   SUCCESS,
   FAIL,
@@ -246,7 +245,6 @@ export function fetchPresets(pagination, existing, id){
         }
       });
     }).catch((error)=>{
-      console.log(error);
       dispatch({
         type: EXISTING_PRESETS_FETCH+FAIL,
         payload: ''
@@ -863,15 +861,6 @@ export function showDeletedNodes(val){
     dispatch({
       type: SHOW_DELETED,
       payload:val
-    });
-  };
-}
-
-export function clearResumableEvents(id){
-  return dispatch=>{
-    dispatch({
-      type: CLEAR_RESUMABLE_EVENTS,
-      payload:id
     });
   };
 }

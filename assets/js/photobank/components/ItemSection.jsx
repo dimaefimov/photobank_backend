@@ -40,6 +40,30 @@ export class ItemSection extends React.Component{
 
   componentDidUpdate(prevProps){
     if(this.props.open_by_default!==prevProps.open_by_default)this.setState({open:this.props.open_by_default});
+    if(this.props.item&&((prevProps.item&&prevProps.item.id !== this.props.item.id)||!prevProps.item)){
+      this.props.resumable.assignBrowse(document.getElementById("browse" + this.props.item.id));
+      this.props.resumable.assignDrop(document.getElementById("drop_target"+this.props.item.id));
+      var dragTimer;
+      $(".item-view").on('dragover', (e)=>{
+        var dt = e.originalEvent.dataTransfer;
+        if (dt.types && (dt.types.indexOf ? dt.types.indexOf('Files') != -1 : dt.types.contains('Files'))) {
+          $("#drop_target" + this.props.item.id).addClass('file-list__drop-target--active');
+          window.clearTimeout(dragTimer);
+        }
+      });
+      $("#drop_target" + this.props.item.id).on('dragleave', (e)=>{
+        dragTimer = window.setTimeout(()=>{
+          $("#drop_target" + this.props.item.id).removeClass('file-list__drop-target--active');
+        }, 100);
+      });
+    }
+  }
+
+  componentWillUpdate(newProps){
+    if(this.props.item&&this.props.resumable&&newProps.item.id!==this.props.item.id){
+      this.props.resumable.events = [];
+      this.props.resumable.unAssignDrop(document.querySelectorAll("#drop_target"+this.props.item.id));
+    }
   }
 
   render() {

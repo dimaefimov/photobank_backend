@@ -10,7 +10,6 @@ import {
   UPLOAD_DELETE,
   DELETE_ALL_PENDING,
   DELETE_ALL_UNFINISHED,
-  CLEAR_RESUMABLE_EVENTS,
   PURGE_EMPTY_ITEMS,
   SUCCESS,
   FAIL
@@ -31,27 +30,31 @@ export default (upload = defaultState, action) => {
     case UPLOADS_UNFINISHED_FETCH+SUCCESS:{
       let uploads = List(action.payload);
       return upload.set('uploads_unfinished',uploads);
-      break;
     }
     case FILE_PROCESSED:{
       let fileParams = action.payload;
       let container = List(upload.get('resumable_container'));
       let resumable = container.find(resumable=>resumable.get('id')===fileParams.itemId);
       let instance = resumable.get('instance');
-      let files = instance.get('files');
+      let files = instance.files;
       let file = files.find(file=>file===fileParams.file);
-      Object.keys(fileParams).forEach((key)=>{
-        if(key!=="file"){file[key] = fileParams[key]}
-      });
-      file.ready = true;
-      instance = instance.set('files',files);
+
+      let identical = files.find(file=>file.uniqueIdentifier===fileParams.uniqueIdentifier);
+      if(!identical){
+        Object.keys(fileParams).forEach((key)=>{
+          if(key!=="file"){file[key] = fileParams[key]}
+        });
+        file.ready = true;
+      }else{
+        files.splice(files.indexOf(file), 1);
+      }
+      
       resumable = resumable.set('instance',instance);
       container = container.splice(container.indexOf(resumable),1);
       container = container.push(resumable);
       let resolved = upload.get('uploads_unfinished');
       resolved = resolved.filter((upload)=>upload.file_hash!==fileParams.uniqueIdentifier);
       return upload.set('resumable_container',container).set('uploads_unfinished', resolved);
-      break;
     }
     case RESUMABLE_PUSH:{
       let itemId = action.payload.id;
@@ -60,23 +63,10 @@ export default (upload = defaultState, action) => {
         container = container.push(Map({
           collection:action.payload.collection,
           id:itemId,
-          instance: Map(new Resumable({target: utility.config.upload_target_url}))
+          instance: new Resumable({target: utility.config.upload_target_url})
         }));
       }
-      return upload.set('resumable_container',container)
-      break;
-    }
-    case CLEAR_RESUMABLE_EVENTS:{
-      let container = List(upload.get('resumable_container'));
-      let resumable = container.find(resumable=>{console.log(resumable.get('id'),action.payload, resumable.get('id')===action.payload);return resumable.get('id')===action.payload});
-      if(!resumable){
-        return upload;
-      }
-      let newInstance = resumable.get('instance').set('events', []);
-      let newResumable = resumable.set('instance', newInstance);
-      container = container.splice(container.indexOf(resumable),1,newResumable);
       return upload.set('resumable_container',container);
-      break;
     }
     case RESUMABLE_POP:{
       let itemId = action.payload;
@@ -86,7 +76,6 @@ export default (upload = defaultState, action) => {
         container = container.splice(container.indexOf(resumable),1);
       }
       return upload.set('resumable_container',container);
-      break;
     }
     case UPLOAD_DELETE:{
       let filehash = action.payload.hash;
@@ -94,12 +83,12 @@ export default (upload = defaultState, action) => {
       let container = List(upload.get('resumable_container'));
       let resumable = container.find(resumable=>resumable.get('id')===item);
       container = container.splice(container.indexOf(resumable),1);
-      resumable.get('instance').get('files')
+      resumable.get('instance').files
       .filter(file=>file.uniqueIdentifier===filehash)
       .forEach(file=>{
-        let files = resumable.get('instance').get('files');
+        let files = resumable.get('instance').files;
         files.splice(files.indexOf(file),1);
-        resumable.get('instance').set('files', files);
+        resumable.get('instance').files = files.slice();
       });
       let unfinished = upload.get('uploads_unfinished');
       let unfinishedIndex = unfinished.indexOf(unfinished.find((upload)=>upload.file_hash===filehash&&upload.id===item));
@@ -126,8 +115,13 @@ export default (upload = defaultState, action) => {
       let container = List(upload.get('resumable_container'));
       const unfinished = List(upload.get('uploads_unfinished'));
       container = container.filter(resumable=>{
-        let files = resumable.get('instance').get('files');
-        return files.length||unfinished.filter(upload=>upload.id===resumable.get('id')).size;
+        let instance = resumable.get('instance');
+        let files = instance.files;
+        let keep = files.length||unfinished.filter(upload=>upload.id===resumable.get('id')).size;
+        if(!keep){
+          resumable.set('instance', Map());
+        }
+        return keep;
       });
       return upload.set('resumable_container',container);
     }
