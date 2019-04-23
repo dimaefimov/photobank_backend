@@ -58,6 +58,9 @@ export class UploadPool extends React.Component{
   render(){
     let pool = this.props.container
     .filter(instance=>instance.collection===this.state.current_collection)
+    .sort((a,b)=>{
+      a.id>b.id?1:-1;
+    })
     .map(item=>{
       return(
       <div key={"pool-item" + item.id}>

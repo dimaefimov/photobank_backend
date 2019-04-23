@@ -6,7 +6,7 @@ import UnfinishedUploads from './UnfinishedUploads';
 import { UploadService } from '../services/UploadService';
 import { NotificationService} from '../../services/NotificationService';
 import selectors from '../selectors';
-import {completeUpload, clearResumableEvents, deleteUpload, deleteUnfinishedUploads, prepareFileForUpload} from '../actionCreator';
+import {completeUpload, deleteUpload, deleteUnfinishedUploads, prepareFileForUpload} from '../actionCreator';
 /**
  * Компонент работы с активными и незаконченными загрузками
  */
@@ -57,6 +57,7 @@ export class Uploads extends React.Component{
    */
   assignResumableEvents=()=>{
     if(!this.props.resumable){return null}
+    // this.props.resumable.events = [];
     this.props.resumable.on('fileAdded', (file, event)=>{
       this.props.prepareFileForUpload(file,this.props.uploads,this.props.item);
       $("#drop_target" + this.props.item.id).removeClass('file-list__drop-target--active');
@@ -71,7 +72,7 @@ export class Uploads extends React.Component{
     });
     this.props.resumable.on('complete', ()=>{
       this.state.busy = false;
-      this.props.completeUpload(this.props.item.id, this.props.resumable.files, this.props.collection_type);
+      this.props.completeUpload(this.props.item.id, this.props.uploads, this.props.collection_type);
     });
     this.props.resumable.on('fileError', (file,message)=>{
       this.state.busy = false;
@@ -86,30 +87,14 @@ export class Uploads extends React.Component{
    */
   componentDidMount(){
     if(!this.props.item||!this.props.resumable){return null}
-    this.props.resumable.assignBrowse(document.getElementById("browse" + this.props.item.id));
-    this.props.resumable.assignDrop(document.getElementById("drop_target" + this.props.item.id));
-    var dragTimer;
-    $(".item-view").on('dragover', (e)=>{
-      var dt = e.originalEvent.dataTransfer;
-      if (dt.types && (dt.types.indexOf ? dt.types.indexOf('Files') != -1 : dt.types.contains('Files'))) {
-        $("#drop_target" + this.props.item.id).addClass('file-list__drop-target--active');
-        window.clearTimeout(dragTimer);
-      }
-    });
-    $("#drop_target" + this.props.item.id).on('dragleave', (e)=>{
-      dragTimer = window.setTimeout(()=>{
-        $("#drop_target" + this.props.item.id).removeClass('file-list__drop-target--active');
-      }, 100);
-    });
     this.assignResumableEvents();
   }
 
   componentWillUnmount(){
-    this.props.clearResumableEvents(this.props.item.id);
+    this.props.resumable.events = [];
   }
 
   render() {
-
     if(!this.props.item||!this.props.resumable){return null}
 
     let uploadsMarkup = this.props.uploads.map(upload=>{
@@ -138,7 +123,8 @@ export class Uploads extends React.Component{
       );
     });
 
-    const ready = this.props.uploads_ready.length!==0 && this.props.uploads.length === this.props.uploads_ready.length ;
+    let uploads_ready = this.props.uploads.filter(upload=>upload.ready);
+    const ready = uploads_ready.length!==0 && this.props.uploads.length === uploads_ready.length ;
 
     return (
       <div className={"item-view__file-list file-list"} id={"file_list" + this.props.item.id}>
@@ -168,8 +154,7 @@ export class Uploads extends React.Component{
 const mapStateToProps = (state,props) =>{
   return {
     resumable: selectors.upload.getResumableInstance(state,props),
-    uploads: selectors.upload.getUploads(state,props),
-    uploads_ready: selectors.upload.getReadyUploads(state,props),
+    uploads: selectors.upload.getResumableUploads(state,props),
     collection_type: selectors.catalogue.getCollectionType(state,props)
   }
 }
@@ -179,7 +164,6 @@ const mapDispatchToProps = {
   deleteUpload,
   completeUpload,
   deleteUnfinishedUploads,
-  clearResumableEvents
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Uploads);
