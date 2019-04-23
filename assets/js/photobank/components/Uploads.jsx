@@ -87,6 +87,7 @@ export class Uploads extends React.Component{
    */
   componentDidMount(){
     if(!this.props.item||!this.props.resumable){return null}
+    this.props.resumable.assignBrowse(document.getElementById("browse" + this.props.item.id));
     this.assignResumableEvents();
   }
 
