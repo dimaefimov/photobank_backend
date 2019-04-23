@@ -24,6 +24,9 @@ export class ItemSection extends React.Component{
     this.state = {
       open:this.props.open_by_default,
     }
+
+    this.dropTarget = React.createRef();
+    this.itemView = React.createRef();
   }
 
   /**
@@ -34,33 +37,46 @@ export class ItemSection extends React.Component{
     this.props.chooseListViewType(type);
   }
 
+  assignDrop = ()=>{
+    // this.props.resumable.assignDrop(document.getElementById("drop_target"+this.props.item.id));
+    if(!this.props.resumable){
+      return;
+    }
+    this.props.resumable.assignDrop(this.dropTarget.current);
+    var dragTimer;
+    $(this.itemView.current).on('dragover', (e)=>{
+      var dt = e.originalEvent.dataTransfer;
+      if (dt.types && (dt.types.indexOf ? dt.types.indexOf('Files') != -1 : dt.types.contains('Files'))) {
+        $(this.dropTarget.current).addClass('file-list__drop-target--active');
+        window.clearTimeout(dragTimer);
+      }
+    });
+    $(this.dropTarget.current).on('dragleave', (e)=>{
+      dragTimer = window.setTimeout(()=>{
+        $(this.dropTarget.current).removeClass('file-list__drop-target--active');
+      }, 100);
+    });
+  }
+
   componentWillMount(){
-    this.props.item&&this.props.pushResumable(this.props.item.id, this.props.collection_type);
+    (this.props.item&&!this.props.resumable)&&this.props.pushResumable(this.props.item.id, this.props.collection_type);
+  }
+
+  componentDidMount(){
+    if(this.props.item){
+      this.assignDrop();
+    }
   }
 
   componentDidUpdate(prevProps){
     if(this.props.open_by_default!==prevProps.open_by_default)this.setState({open:this.props.open_by_default});
-    if(this.props.item&&((prevProps.item&&prevProps.item.id !== this.props.item.id)||!prevProps.item)){
-      this.props.resumable.assignBrowse(document.getElementById("browse" + this.props.item.id));
-      this.props.resumable.assignDrop(document.getElementById("drop_target"+this.props.item.id));
-      var dragTimer;
-      $(".item-view").on('dragover', (e)=>{
-        var dt = e.originalEvent.dataTransfer;
-        if (dt.types && (dt.types.indexOf ? dt.types.indexOf('Files') != -1 : dt.types.contains('Files'))) {
-          $("#drop_target" + this.props.item.id).addClass('file-list__drop-target--active');
-          window.clearTimeout(dragTimer);
-        }
-      });
-      $("#drop_target" + this.props.item.id).on('dragleave', (e)=>{
-        dragTimer = window.setTimeout(()=>{
-          $("#drop_target" + this.props.item.id).removeClass('file-list__drop-target--active');
-        }, 100);
-      });
+    if(this.props.item&&(prevProps.item&&(prevProps.item.id !== this.props.item.id))||!prevProps.item){
+      this.assignDrop();
     }
   }
 
   componentWillUpdate(newProps){
-    if(this.props.item&&this.props.resumable&&newProps.item.id!==this.props.item.id){
+    if(this.props.item&&newProps.item&&this.props.resumable&&newProps.item.id!==this.props.item.id){
       this.props.resumable.events = [];
       this.props.resumable.unAssignDrop(document.querySelectorAll("#drop_target"+this.props.item.id));
     }
@@ -93,8 +109,8 @@ export class ItemSection extends React.Component{
     let itemTitle = (this.props.collection_type===0?(this.props.item.id+" - "+article+" "):"")+this.props.item.name;
 
     return (
-      <div className = {"item-view"} >
-      <div className="file-list__drop-target" id={"drop_target" + this.props.item.id}></div>
+      <div className = {"item-view"} ref={this.itemView} >
+      <div key={"drop_target" + this.props.item.id} ref={this.dropTarget} className="file-list__drop-target" id={"drop_target" + this.props.item.id}></div>
       {
         !this.props.collapsible_existing
         ?<button type="button" className="item-view__collapse-button" onClick={()=>{this.setState({"open": !this.state.open})}}>
