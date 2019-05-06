@@ -32,6 +32,7 @@ export class Draggable extends React.Component{
   handleRelease=()=>{
     document.removeEventListener('mousemove', this.calc, true);
     this.setState({dragging:false});
+    this.props.handleRelease(this.state.width[0]);
   }
 
   /**

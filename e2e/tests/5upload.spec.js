@@ -66,19 +66,25 @@ describe('Загрузка ресурсов на сервер', function () {
     await u.waitForEl(driver, c.SELECTORS.notloading.ITEM_LIST);
     let searchResults = await driver.findElements(By.css(c.SELECTORS.upload.ITEM_LIST_ITEM));
 
-    let itemCounter = 0;
+    let itemCounter = 1;
     let numOfResources = 0;
+
+    await u.w(driver);
+
     do{
       let item = searchResults[itemCounter++];
       await item.click();
       await u.waitForEl(driver, c.SELECTORS.notloading.RESOURCE_LIST);
+      await u.sw(driver);
       resources = await driver.findElements(By.css(c.SELECTORS.upload.RESOURCE_LIST_ITEM));
       numOfResources = resources.length;
     }while(numOfResources>0);
 
-    await u.waitForEl(driver, c.SELECTORS.upload.BROWSE_FILES_BTN);
+    await u.waitForEl(driver, c.SELECTORS.upload.BROWSE_FILES_BTN+">input[type='file']");
     let fileInput = await driver.findElement(By.css(c.SELECTORS.upload.BROWSE_FILES_BTN+">input[type='file']"));
     await fileInput.sendKeys(absPath+c.ABS_FILE_PATHS.join('\n'+absPath));
+    await u.w(driver);
+    await u.waitForEl(driver, c.SELECTORS.upload.UPLOAD_FILES_BTN+":enabled");
     let uploadBtn = await driver.findElement(By.css(c.SELECTORS.upload.UPLOAD_FILES_BTN));
     let resBefore = await driver.findElements(By.css(c.SELECTORS.upload.RESOURCE_LIST_ITEM));
     await uploadBtn.click();
@@ -125,10 +131,11 @@ describe('Загрузка ресурсов на сервер', function () {
     let uploadAllBtn = await driver.findElement(By.css(c.SELECTORS.upload.UPLOAD_ALL_BTN));
     await uploadAllBtn.click();
 
-    await u.waitForEl(driver, c.SELECTORS.NOTIFICATION_TOAST);
     await u.w(driver);
-    let toast = await driver.findElement(By.css(c.SELECTORS.NOTIFICATION_TOAST));
-    expect(await toast.getText()).to.equal("Загрузка на сервер завершена");
+    await u.waitForEl(driver, c.SELECTORS.NOTIFICATION_TOAST);
+    let toast = await driver.findElement(By.css(c.SELECTORS.NOTIFICATION_TOAST+' p.notification__notification-caption'));
+    let toasttxt = await toast.getText();
+    expect(toasttxt).to.equal("Загрузка на сервер завершена");
     await u.s(driver);
   });
 

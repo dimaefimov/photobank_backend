@@ -11,7 +11,7 @@ import {CatalogueService} from '../services/CatalogueService';
 import {LocalStorageService} from '../services/LocalStorageService';
 import {NotificationService} from '../../services/NotificationService';
 import {UtilityService} from '../services/UtilityService';
-import { fetchUnfinished, getLocalStorage, getUserInfo, init } from '../actionCreator'
+import { fetchUnfinished, getLocalStorage, getUserInfo, init,setLocalValue } from '../actionCreator'
 import selectors from '../selectors';
 
 /**
@@ -41,9 +41,13 @@ export class PhotoBank extends React.Component {
     });
   }
 
+  handleDraggableRelease = (width)=>{
+    this.props.setLocalValue('catalogue_basis', width.toString());
+  }
+
   render() {
     if(this.props.catalogue_data === {} || !this.state.ready){return (<h1>ЗАГРУЗКА...</h1>)}
-    let inner = null===this.props.show_node_viewer?<CatalogueTree />:<Draggable basew="20" maxw1="35" maxw2="85" box1={<CatalogueTree />} box2={<NodeViewer />} id="1" parent={this.refs.draggable_parent}/>;
+    let inner = null===this.props.show_node_viewer?<CatalogueTree />:<Draggable basew={this.props.draggable_base} maxw1="35" maxw2="85" box1={<CatalogueTree />} box2={<NodeViewer />} id="1" parent={this.refs.draggable_parent} handleRelease={this.handleDraggableRelease}/>;
     return (
       <div className="photobank-main">
         <div id="notification-overlay"></div>
@@ -61,6 +65,7 @@ const mapStateToProps = (state,props) =>{
   return {
     show_node_viewer: null===state.catalogue.item_query_object,
     catalogue_data: selectors.catalogue.getCatalogueData(state,props),
+    draggable_base: selectors.localstorage.getCatalogueBaseWidth(state,props),
   }
 }
 
@@ -68,6 +73,7 @@ const mapDispatchToProps = {
   fetchUnfinished,
   getLocalStorage,
   getUserInfo,
+  setLocalValue,
   init
 }
 
