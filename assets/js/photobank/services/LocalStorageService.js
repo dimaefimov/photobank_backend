@@ -21,7 +21,9 @@ class LocalStorageService{
       "list_view_type": "pb_data_list_view_type",
       "catalogue_view": "pb_data_catalogue_view_type",
       "pagination_limit": "pb_data_pagination_limit",
-      "collection_type": "pb_data_collection_type"
+      "collection_type": "pb_data_collection_type",
+      "catalogue_basis": "pb_data_catalogue_basis",
+      "itemlist_basis": "pb_data_itemlist_basis",
     }
     return keys;
   }
@@ -37,6 +39,8 @@ class LocalStorageService{
       utility.localStorage.setItem('pb_data_catalogue_view_type',constants.CATALOGUE_VIEW_TYPES.tree);
       utility.localStorage.setItem('pb_data_pagination_limit',constants.DEFAULT_PAGINATION_LIMIT);
       utility.localStorage.setItem('pb_data_collection_type',constants.CATALOGUE_COLLECTION);
+      utility.localStorage.setItem('pb_data_catalogue_basis',constants.DRAGGABLE_CATALOGUE_BASIS);
+      utility.localStorage.setItem('pb_data_itemlist_basis',constants.DRAGGABLE_ITEMLIST_BASIS);
     }
   }
 

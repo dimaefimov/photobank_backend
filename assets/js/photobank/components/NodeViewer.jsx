@@ -9,7 +9,7 @@ import DownloadPool from './DownloadPool';
 import {Draggable} from './../../common/Draggable';
 import {LocalStorageService} from '../services/LocalStorageService';
 import {NotificationService} from '../../services/NotificationService';
-import {fetchItemData} from '../actionCreator';
+import {fetchItemData, setLocalValue} from '../actionCreator';
 import selectors from '../selectors';
 
 /**
@@ -58,6 +58,10 @@ export class NodeViewer extends React.Component{
     }
   }
 
+  handleDraggableRelease = (width)=>{
+    this.props.setLocalValue('itemlist_basis', width.toString());
+  }
+
   render() {
     let itemSectionOutput = <ItemSection />;
 
@@ -95,9 +99,9 @@ export class NodeViewer extends React.Component{
     );
     let inner;
     if(0===this.props.collection_type)
-      {inner = <Draggable basew="30" maxw1="50" maxw2="90" parent={this.refs.draggable_parent} box1={<ItemList />} box2={itemSection} id="2" />;}
+      {inner = <Draggable handleRelease={this.handleDraggableRelease} basew={this.props.draggable_base} maxw1="50" maxw2="90" parent={this.refs.draggable_parent} box1={<ItemList />} box2={itemSection} id="2" />;}
     else if(3===this.props.catalogue_view)
-      {inner = <Draggable basew="30" maxw1="50" maxw2="90" parent={this.refs.draggable_parent} box1={<ItemList items={this.props.found_garbage_nodes} />} box2={itemSection} id="2" />;}
+      {inner = <Draggable handleRelease={this.handleDraggableRelease} basew={this.props.draggable_base} maxw1="50" maxw2="90" parent={this.refs.draggable_parent} box1={<ItemList items={this.props.found_garbage_nodes} />} box2={itemSection} id="2" />;}
     else
       {inner = itemSection}
     return (
@@ -119,11 +123,13 @@ const mapStateToProps = (state,props) =>{
     collection_type: selectors.catalogue.getCollectionType(state,props),
     catalogue_view: selectors.localstorage.getStoredCatalogueViewtype(state,props),
     found_garbage_nodes: selectors.catalogue.getFoundGarbageNodes(state,props),
+    draggable_base: selectors.localstorage.getItemListBaseWidth(state,props),
   }
 }
 
 const mapDispatchToProps = {
-  fetchItemData
+  fetchItemData,
+  setLocalValue
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(NodeViewer);

@@ -39,7 +39,10 @@ export const RESOURCES_BIG_ICONS_VIEW = 0;
 export const RESOURCES_SMALL_ICONS_VIEW = 1;
 export const RESOURCES_TABLE_VIEW = 2;
 
-export const LOCALSTORAGE_VERSION = "3";
+export const DRAGGABLE_CATALOGUE_BASIS = 20;
+export const DRAGGABLE_ITEMLIST_BASIS = 30;
+
+export const LOCALSTORAGE_VERSION = "5";
 export const CATALOGUE_VIEW_TYPES = {
   list:"1",
   tree:"2",

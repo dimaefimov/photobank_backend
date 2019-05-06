@@ -35,3 +35,13 @@ export const getPendingDownloads = createSelector(localStorage, (storage)=>{
   let downloads = storage.get('pending_downloads');
   return downloads?downloads:[];
 });
+
+export const getCatalogueBaseWidth = createSelector(localStorage, (storage)=>{
+  let basis = storage.get('catalogue_basis');
+  return basis?basis:20;
+});
+
+export const getItemListBaseWidth = createSelector(localStorage, (storage)=>{
+  let basis = storage.get('itemlist_basis');
+  return basis?basis:20;
+});
