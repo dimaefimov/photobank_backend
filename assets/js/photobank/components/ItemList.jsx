@@ -67,6 +67,46 @@ export class ItemList extends React.Component{
     this.setState({sort_func:functions[func]});
   }
 
+  /**
+   * Подписчик на события на странице для отлавливания комбинаций клавиш
+   * @param  {Event} e Событие
+   */
+  keylistener = (e)=>{
+    e = e || window.event;
+    var key = e.which || e.keyCode; // keyCode detection
+
+    let items_sorted = this.props.items_filtered.sort(this.state.sort_func);
+    let item_index = items_sorted.indexOf(this.props.current_item);
+
+    if ( key == 40 ) {
+        e.preventDefault();
+        let newItem = items_sorted[item_index+1];
+        if(newItem){
+          this.itemClickHandler(newItem.id);
+        }
+      }else if ( key == 38 ) {
+        e.preventDefault();
+        let newItem = items_sorted[item_index-1];
+        if(newItem){
+          this.itemClickHandler(newItem.id);
+        }
+      }
+  }
+
+  /**
+   * Обработчик появления курсора мыши на области компонента, для ограничения событий нажатия клавиатурных сокращений
+   */
+  handleFocus = ()=>{
+    document.body.addEventListener("keydown",this.keylistener);
+  }
+
+  /**
+   * Обработчик исчезновения курсора мыши с области компонента, для ограничения событий нажатия клавиатурных сокращений
+   */
+  handleBlur = ()=>{
+    document.body.removeEventListener('keydown', this.keylistener);
+  }
+
   render() {
     let nodeItemList = this.props.items
     .filter((item)=>{if(!this.state.filter_query) return true; return JSON.stringify(item).toLowerCase().includes(this.state.filter_query.toLowerCase());})
@@ -94,7 +134,7 @@ export class ItemList extends React.Component{
       </div>);
 
     return (
-      <div className={"item-list"}>
+      <div className={"item-list"} onMouseEnter={this.handleFocus} onMouseLeave={this.handleBlur}>
         <span className="titlefix"><h2 className="node-viewer__component-title component-title">Товары</h2></span>
       <div className={(this.props.loading?"loading ":"")+"view-inner__container inner-bump"}>
         <ListFilter filterHandler={this.filterQueryHandler} filterid="nodesearch" placeholder="Фильтр по выбранному" />

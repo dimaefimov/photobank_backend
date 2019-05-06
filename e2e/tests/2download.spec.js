@@ -90,6 +90,7 @@ describe('Скачивание существующих ресурсов', funct
       await u.waitForEl(driver,c.SELECTORS.upload.DOWNLOAD_ALL_BTN);
       let dlAllBtn = await driver.findElement(By.css(c.SELECTORS.upload.DOWNLOAD_ALL_BTN));
       await dlAllBtn.click();
+      await u.w(driver);
       await u.waitForEl(driver,c.SELECTORS.NOTIFICATION_TOAST);
       let toast = await driver.findElement(By.css(c.SELECTORS.NOTIFICATION_TOAST));
       expect((await toast.getText()).match(/\d/)[0]).to.equal(numOfResources.toString());

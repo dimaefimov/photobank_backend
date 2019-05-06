@@ -86,8 +86,8 @@ describe('Проверка поисковой системы (и фильтро�
     const searchSubmitBtn = await driver.findElement(By.css(c.SELECTORS.upload.ITEM_SEARCH_FORM+">"+c.SELECTORS.upload.ITEM_SEARCH_SUBMIT_BTN));
     await searchSubmitBtn.click();
     await u.waitForEl(driver, c.SELECTORS.notloading.ITEM_LIST);
+    await u.w(driver);
     const searchResults = await driver.findElements(By.css(c.SELECTORS.upload.ITEM_LIST_ITEM));
-    await u.s(driver);
     let resultCode = await searchResults[0].getAttribute('data-item');
     expect(resultCode).to.equal(itemCodes[0]);
     await u.s(driver);
