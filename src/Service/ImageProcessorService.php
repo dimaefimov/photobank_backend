@@ -169,22 +169,34 @@ private $fileSystem;
     if(!$this->fileSystem->exists(dirname($params['target']))){$this->fileSystem->mkDir(dirname($params['target']));}
 
     $image = $imageProcessor->open($params['source']);
+    $image = $this->_placeOnBackground($image,$imageProcessor);
+    $imgSize = $this->_getImageDimentions($image);
 
     $targetSize = [(int)($params['width']),(int)($params['height'])];
-
-    $imgSize = $this->_getImageDimentions($image);
 
     $imgRatio = round($imgSize[0]/$imgSize[1], 2);
     $targetRatio = round($targetSize[0]/$targetSize[1], 2);
 
     if($imgRatio !== $targetRatio){
       // $image = $this->_fixRatio($image, $targetRatio, $imageProcessor);
-      $retImg = $this->_thumbByContent($image, $imageProcessor, [$targetSize[0], $targetSize[1]], 5);
+      $retImg = $this->_thumbByContent($image, $imageProcessor, $targetSize, 5);
     }else{
       $retImg = $this->_getThumbnail($image, $targetSize, $params['mode']);
     }
 
     $retImg->save($params['target']);
+  }
+
+  private function _placeOnBackground($image,$imageProcessor,$start=[0,0],$size=null,$color=[255,255,255])
+  {
+    $imgSize = $size?$size:$this->_getImageDimentions($image);
+    $palette = new \Imagine\Image\Palette\RGB();
+    $background = new \Imagine\Image\Palette\Color\RGB($palette, $color, 100);
+    $point = new Point($start[0], $start[1]);
+    $box = new Box($imgSize[0], $imgSize[1]);
+    $canvas = new Canvas($imageProcessor,$box, $point, $background);
+    $image = $canvas->apply($image);
+    return $image;
   }
 
 private function _getThumbnail($image, $targetSize)
@@ -194,29 +206,6 @@ private function _getThumbnail($image, $targetSize)
     $image = $thumb->apply($image);
     return $image;
   }
-
-function _growMargins($image, $interface, $size, $placement)
-{
-  $palette = new \Imagine\Image\Palette\RGB();
-  $color = new \Imagine\Image\Palette\Color\RGB($palette, [255,255,255], 100);
-
-  $tempImg = $image->copy();
-
-  $box = new Box((int)($size[0]), (int)($size[1]));
-
-  $imgSize = $this->_getImageDimentions($tempImg);
-
-  if($imgSize[0]<$size[0]){
-    $growAxis = 0;
-  }elseif($imgSize[1]<$size[1]){
-    $growAxis = 1;
-  }
-
-  $start = new Point($placement[0], $placement[1]);
-
-  $b = new Canvas($interface, $box, $start, $color);
-  return $b->apply($tempImg);
-}
 
 private function _isImageWhite($image)
 {
@@ -270,9 +259,11 @@ private function _areMarginsWhite($image, $targetSize)
 
 private function _getImageDimentions($image)
 {
-  $imagePath = $this->_getImagePath($image);
-  $imgSize = getimagesize($imagePath);
-  return [$imgSize[0],$imgSize[1]];
+  // $imagePath = $this->_getImagePath($image);
+  // $imgSize = getimagesize($imagePath);
+  // return [$imgSize[0],$imgSize[1]];
+  $size = $image->getSize();
+  return [$size->getWidth(),$size->getHeight()];
 }
 
 private function _getImagePath($image)
@@ -306,8 +297,8 @@ private function _fixRatio($image, $ratio, $interface)
       $targetSize[1] = (int)($imgSize[1]/($ratio/$currentRatio));
     }
     $placement = [0,0];
-    $placement[$fixAxis] = ($targetSize[$fixAxis] - $imgSize[$fixAxis])/2;
-    return $this->_growMargins($image, $interface, $targetSize, $placement);
+    $placement[$fixAxis] = round(($targetSize[$fixAxis] - $imgSize[$fixAxis])/2);
+    return $this->_placeOnBackground($image, $interface, $placement, $targetSize);
   }
 }
 
@@ -356,7 +347,6 @@ private function _getImageContentMap($image)
 
 private function _thumbByContent($image, $interface, $targetSize, $margin = 5)
 {
-
   $tempImg = $image->copy();
   $contentMap = $this->_getImageContentMap($tempImg);
 
@@ -394,11 +384,11 @@ private function _thumbByContent($image, $interface, $targetSize, $margin = 5)
     $size = new Box((int)($cropSize[0]), (int)($cropSize[1]));
     $thumb = new Thumbnail($size);
     $cropped = $thumb->apply($cropped);
+    $cropSize = $this->_getImageDimentions($cropped);
   }
 
-  $placement = [($targetSize[0]-$cropSize[0])/2+$marginx, ($targetSize[1]-$cropSize[1])/2+$marginy];
-
-  return $this->_growMargins($cropped, $interface, $targetSize, $placement);
+  $placement = [(int)round(($targetSize[0]-$cropSize[0])/2+$marginx), (int)round(($targetSize[1]-$cropSize[1])/2+$marginy)];
+  return $this->_placeOnBackground($cropped, $interface, $placement, $targetSize);
 
 }
 
