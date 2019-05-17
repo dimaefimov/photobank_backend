@@ -387,7 +387,7 @@ private function _thumbByContent($image, $interface, $targetSize, $margin = 5)
     $cropSize = $this->_getImageDimentions($cropped);
   }
 
-  $placement = [(int)round(($targetSize[0]-$cropSize[0])/2+$marginx), (int)round(($targetSize[1]-$cropSize[1])/2+$marginy)];
+  $placement = [(int)floor(($targetSize[0]-$cropSize[0])/2+$marginx), (int)floor(($targetSize[1]-$cropSize[1])/2+$marginy)];
   return $this->_placeOnBackground($cropped, $interface, $placement, $targetSize);
 
 }
