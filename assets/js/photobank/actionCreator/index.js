@@ -30,6 +30,7 @@ import {
   NODE_RESTORE,
   NODE_REBASE,
   SHOW_DELETED,
+  UPLOAD_COMPLETE,
   START,
   SUCCESS,
   FAIL,
@@ -354,6 +355,10 @@ export function completeUpload(id, files, collection){
     .then(()=>{
       dispatch(fetchExisting(id,collection));
       dispatch(fetchUnfinished());
+      dispatch({
+        type: UPLOAD_COMPLETE,
+        payload: id
+      });
       NotificationService.toast('up-done');
     });
   };

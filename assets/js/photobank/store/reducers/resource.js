@@ -45,7 +45,11 @@ export default (resource = defaultState, action) => {
       return resource.set('downloads',List(action.payload))
       break;
     case ITEM_CHOICE:
-      return resource.set('resources_existing',Map({})).set('finished_presets', Map({}));
+      let existing = resource.get('resources_existing');
+      let finished_presets = resource.get('finished_presets');
+      existing = Map({[action.payload]:existing.get(action.payload)});
+      finished_presets = Map({[action.payload]:finished_presets.get(action.payload)});
+      return resource.set('resources_existing',existing).set('finished_presets', finished_presets);
       break;
   }
   return resource
