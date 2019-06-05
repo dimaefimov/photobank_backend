@@ -16,7 +16,7 @@ export default (user = defaultState, action) => {
     case USER_INFO_FETCH+SUCCESS:{
       const user_info = Map(action.payload);
       const roles = user_info.get('user_roles');
-      const authorized = roles.includes("ROLE_ADMIN")||roles.includes("ROLE_SUPER_ADMIN")||roles.includes("ROLE_WRITER");
+      const authorized = roles.includes("ROLE_ADMIN")||roles.includes("ROLE_SUPER_ADMIN")||roles.includes("ROLE_WRITER")||roles.includes("ROLE_GARBAGE_ADMIN");
       const authorizedGarbage = roles.includes("ROLE_SUPER_ADMIN")||roles.includes("ROLE_GARBAGE_ADMIN");
       return user.set('isAuthorized',authorized).set('isAuthorizedGarbage', authorizedGarbage);
       break;
