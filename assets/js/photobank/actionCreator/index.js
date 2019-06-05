@@ -353,12 +353,9 @@ export function completeUpload(id, files, collection){
   return dispatch=>{
     return dispatch(deletePendingUploads(id,files))
     .then(()=>{
+      dispatch(fetchItemData(id,collection));
       dispatch(fetchExisting(id,collection));
       dispatch(fetchUnfinished());
-      dispatch({
-        type: UPLOAD_COMPLETE,
-        payload: id
-      });
       NotificationService.toast('up-done');
     });
   };

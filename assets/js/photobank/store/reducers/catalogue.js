@@ -133,7 +133,11 @@ export default (catalogue = defaultState, action) => {
     case ITEM_INFO_FETCH+SUCCESS:{
       let itemData = action.payload;
       let prefetchedItems = List(catalogue.get('items'));
-      if(!prefetchedItems.find(item=>item.id===itemData.id))prefetchedItems = prefetchedItems.push(itemData);
+      let found = prefetchedItems.find(item=>item.id===itemData.id);
+      if(found){
+        prefetchedItems = prefetchedItems.filter(item=>item.id!==itemData.id);
+      }
+      prefetchedItems = prefetchedItems.push(itemData);
       return catalogue.set('items',prefetchedItems);
       break;
     }
