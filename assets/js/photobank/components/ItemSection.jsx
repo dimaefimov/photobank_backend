@@ -106,7 +106,7 @@ export class ItemSection extends React.Component{
 
     let article = this.props.item.article||"";
 
-    let itemTitle = (this.props.collection_type===0?(this.props.item.id+" - "+article+" "):"")+this.props.item.name;
+    let itemTitle = (this.props.collection_type===0?(this.props.item.id+" | "+article+" | "):"")+this.props.item.name;
 
     return (
       <div className = {"item-view"} ref={this.itemView} >
