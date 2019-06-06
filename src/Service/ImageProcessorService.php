@@ -170,6 +170,7 @@ private $fileSystem;
 
     $image = $imageProcessor->open($params['source']);
     $image = $this->_convertToRGB($image);
+    $image->save();
     $image = $this->_placeOnBackground($image,$imageProcessor);
     $imgSize = $this->_getImageDimentions($image);
 
