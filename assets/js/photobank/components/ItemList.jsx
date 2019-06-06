@@ -117,7 +117,7 @@ export class ItemList extends React.Component{
           ?<i className="fas fa-search" title="Показать в каталоге" onClick={()=>{this.chooseNodeByItem(item)}}></i>
           :null
         }
-        <h4 className={"list-item__title"} data-item={item.id} onClick={()=>{this.itemClickHandler(item.id)}} title={item.node}><i className={(parseInt(item.resource_count, 10)>0?"fas":"far")+" fa-circle"} style={{"fontSize":"7pt", "margin": "3px"}}></i>{item.itemCode} - {item.article} "{item.name}"</h4>
+        <h4 className={"list-item__title"} data-item={item.id} onClick={()=>{this.itemClickHandler(item.id)}} title={item.node}><i className={(parseInt(item.resource_count, 10)>0?"fas":"far")+" fa-circle"} style={{"fontSize":"7pt", "margin": "3px"}}></i>{item.itemCode} | {item.article} | "{item.name}"</h4>
       </div>}
     );
 

@@ -30,6 +30,7 @@ import {
   NODE_RESTORE,
   NODE_REBASE,
   SHOW_DELETED,
+  UPLOAD_COMPLETE,
   START,
   SUCCESS,
   FAIL,
@@ -352,6 +353,7 @@ export function completeUpload(id, files, collection){
   return dispatch=>{
     return dispatch(deletePendingUploads(id,files))
     .then(()=>{
+      dispatch(fetchItemData(id,collection));
       dispatch(fetchExisting(id,collection));
       dispatch(fetchUnfinished());
       NotificationService.toast('up-done');

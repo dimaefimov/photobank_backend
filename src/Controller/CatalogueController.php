@@ -122,7 +122,7 @@ class CatalogueController extends AbstractController
         $response = new JsonResponse();
 
         $citemArray = $serializer->normalize($citem, null, array(
-          'add-children'=>true,
+          'add-children-count'=>true,
             ObjectNormalizer::ENABLE_MAX_DEPTH => true,
             'groups' => array('main','parent')
         ));

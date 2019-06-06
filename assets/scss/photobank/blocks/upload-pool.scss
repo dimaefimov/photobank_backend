@@ -1,7 +1,7 @@
 .upload-pool {
   .item-view{
     background-color: #fff;
-    padding:5px;
+    border: 4px solid #3a657b;
   }
   &__collapse-all{
     @include button();

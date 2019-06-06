@@ -169,6 +169,8 @@ private $fileSystem;
     if(!$this->fileSystem->exists(dirname($params['target']))){$this->fileSystem->mkDir(dirname($params['target']));}
 
     $image = $imageProcessor->open($params['source']);
+    $image = $this->_convertToRGB($image);
+    $image->save();
     $image = $this->_placeOnBackground($image,$imageProcessor);
     $imgSize = $this->_getImageDimentions($image);
 
@@ -178,13 +180,18 @@ private $fileSystem;
     $targetRatio = round($targetSize[0]/$targetSize[1], 2);
 
     if($imgRatio !== $targetRatio){
-      // $image = $this->_fixRatio($image, $targetRatio, $imageProcessor);
       $retImg = $this->_thumbByContent($image, $imageProcessor, $targetSize, 5);
     }else{
       $retImg = $this->_getThumbnail($image, $targetSize, $params['mode']);
     }
 
     $retImg->save($params['target']);
+  }
+
+  private function _convertToRGB($image)
+  {
+    $palette = new \Imagine\Image\Palette\RGB();
+    return $image->usePalette($palette);
   }
 
   private function _placeOnBackground($image,$imageProcessor,$start=[0,0],$size=null,$color=[255,255,255])
