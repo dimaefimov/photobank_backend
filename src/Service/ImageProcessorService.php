@@ -184,7 +184,7 @@ class ImageProcessorService
         $imgRatio = round($imgSize[0]/$imgSize[1], 2);
         $targetRatio = round($targetSize[0]/$targetSize[1], 2);
 
-        $retImg = $this->_thumbByContent($image, $imageProcessor, $targetSize, 5);
+        $retImg = $this->_thumbByContent($image, $imageProcessor, $targetSize, 3);
 
         $retImg->save($params['target']);
     }
@@ -369,7 +369,7 @@ class ImageProcessorService
         $tempImg = $image->copy();
         $contentMap = $this->_getImageContentMap($tempImg);
         $origSize = $this->_getImageDimentions($tempImg);
-        
+
         $marginPx = (int)floor(($marginPercent/100)*$origSize[1]);
 
         $cropStart = [$contentMap['left'], $contentMap['top']];
@@ -452,6 +452,7 @@ class ImageProcessorService
 
                 $color = $image->getColorAt($p)->__toString();
                 if (('#ffffff'!==$color)==$params['targetResult']) {
+                    $axes[1]-=$increments[1];
                     $result = $params['targetResult'];
                 } else {
                     $axes[1]+=$increments[1];
