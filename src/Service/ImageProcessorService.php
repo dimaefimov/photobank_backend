@@ -411,10 +411,10 @@ class ImageProcessorService
             $size = new Box((int)($thumbSize[0]), (int)($thumbSize[1]));
             $thumb = new Thumbnail($size);
             $cropped = $thumb->apply($cropped);
-            $cropSize = $this->_getImageDimentions($cropped);
+            $insertSize = $this->_getImageDimentions($cropped);
         }
 
-        $placement = [(int)floor(($targetSize[0]-$cropSize[0])/2), (int)floor(($targetSize[1]-$cropSize[1])/2)];
+        $placement = [(int)floor(($targetSize[0]-$insertSize[0])/2), (int)floor(($targetSize[1]-$insertSize[1])/2)];
         $generated = $this->_placeOnBackground($cropped, $interface, $placement, $targetSize);
         return $generated;
     }
