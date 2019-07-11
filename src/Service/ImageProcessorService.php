@@ -200,7 +200,6 @@ class ImageProcessorService
     {
         $contentMap = $this->_getImageContentMap($image);
         $origSize = $this->_getImageDimentions($image);
-        var_dump($origSize);
         $marginPx = (int)floor(($marginPercent/100)*$origSize[1]);
 
         // Кто загружает белые фотки вообще?
