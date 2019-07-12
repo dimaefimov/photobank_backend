@@ -3,7 +3,7 @@
 ABSOLUTE_FILENAME=`readlink -e "$0"`
 LOCALDIR=`dirname $ABSOLUTE_FILENAME`;
 LOCALPATH=$LOCALDIR/console
-until [[ `php $LOCALPATH messenger:consume-messages --memory-limit=20M amqp`  && $? -eq 0 ]]; do
+until [[ `php $LOCALPATH messenger:consume-messages --memory-limit=3M amqp`  && $? -eq 0 ]]; do
     echo "Crashed with exit code $?.  Respawning.." >&2
     sleep 1
 done
