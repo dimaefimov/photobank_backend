@@ -175,16 +175,18 @@ class ImageProcessorService
         }
 
         $image = $imageProcessor->open($params['source']);
-        $image->save();
+
+        $image->layers()->coalesce();
+
         $image = $this->_convertToRGB($image);
         $image = $this->_placeOnBackground($image, $imageProcessor);
         $targetSize = [(int)($params['width']),(int)($params['height'])];
 
-        $retImg = $this->_thumbByContent($image, $imageProcessor, $targetSize, 3);
+        $image = $this->_thumbByContent($image, $imageProcessor, $targetSize, 3);
 
-        //$retImg = $this->_darken($retImg);
+        //$image = $this->_darken($image);
 
-        $retImg->save($params['target']);
+        $image->save($params['target']);
     }
 
     /**
@@ -220,6 +222,8 @@ class ImageProcessorService
         },$cropSize);
 
         $image = $this->_placeOnBackground($image, $interface, [$marginPx,$marginPx], $insertSize);
+
+        $imgSize = $this->_getImageDimentions($image);
 
         if ($insertSize[0]>$targetSize[0] || $insertSize[1]>$targetSize[1]) {
 
@@ -340,7 +344,6 @@ class ImageProcessorService
        */
       private function _getImageContentMap($image)
       {
-  
         $imgSize = $this->_getImageDimentions($image);
         $step = ceil($imgSize[0]/500);
         $leftHit = $this->_scanBound([
@@ -409,6 +412,7 @@ class ImageProcessorService
         while (abs(($axes[0])-$limits[0])>$step && $result!==$params['targetResult']) {
             $axes[1] = $resets[1];
             while (abs(($axes[1])-$limits[1])>$step && $result!==$params['targetResult']) {
+              
                 $p = new Point((int)$x, (int)$y);
 
                 $color = $image->getColorAt($p)->__toString();
@@ -423,7 +427,11 @@ class ImageProcessorService
             if ($result!==$params['targetResult']) {
                 $axes[0]+=$increments[0];
                 $counters[0]++;
+            } else {
+                $axes[0]-=$increments[0];
+                $counters[0]++;
             }
+            $this->_clampVector($axes,[0,0],$limits);
         }
         return [$x, $y];
     }
