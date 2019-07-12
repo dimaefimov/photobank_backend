@@ -177,6 +177,7 @@ class ImageProcessorService
         $image = $imageProcessor->open($params['source']);
 
         $image->layers()->coalesce();
+        $image->save();
 
         $image = $this->_convertToRGB($image);
         $image = $this->_placeOnBackground($image, $imageProcessor);
