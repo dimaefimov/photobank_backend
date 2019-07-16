@@ -176,11 +176,13 @@ class ImageProcessorService
 
         $image = $imageProcessor->open($params['source']);
 
-        $image->layers()->coalesce();
-        $image->save();
-
+        $layers = $image->layers();
+        $layers->coalesce();
+        $image = $layers->get(0);
+        
         $image = $this->_convertToRGB($image);
         $image = $this->_placeOnBackground($image, $imageProcessor);
+
         $targetSize = [(int)($params['width']),(int)($params['height'])];
 
         $image = $this->_thumbByContent($image, $imageProcessor, $targetSize, 3);
