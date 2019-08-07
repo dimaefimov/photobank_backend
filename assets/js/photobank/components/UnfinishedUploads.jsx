@@ -49,7 +49,7 @@ export class UnfinishedUploads extends React.Component{
   }
 
   render() {
-    if(!this.props.item){return null;}
+    if(!this.props.item||this.props.unfinished.length===0){return null;}
     let unfinished_uploads = this.props.unfinished.map((upload)=>
       <div key={upload.file_name+upload.file_hash+"unfinished"} className={"file-list__file-item file-item " + "file-item--unfinished " + (this.state.unfinished_hidden?"file-item--hidden":"")}>
         <i data-item={upload.file_hash} onClick={()=>{this.handleDelete(upload.file_hash)}} className="fas fa-trash-alt file-item__delete-upload"></i><br />

@@ -6,6 +6,7 @@ security:
         - { path: ^/catalogue/node/item/resource/thumbnails, roles: ROLE_USER, requires_channel: http }
         - { path: ^/catalogue/node/item/resource, methods: [PATCH], roles: ROLE_WRITER, requires_channel: http }
         - { path: ^/usermanager, roles: ROLE_ADMIN , requires_channel: http }
+        - { path: ^/api/links/gettemp, roles: IS_AUTHENTICATED_ANONYMOUSLY , requires_channel: http }
         - { path: ^/api/links/get, roles: IS_AUTHENTICATED_ANONYMOUSLY , requires_channel: http }
         - { path: ^/api/links/, roles: ROLE_USER, requires_channel: http }
         - { path: ^/garbage/node/(remove|restore|add|update), roles: ROLE_GARBAGE_ADMIN, requires_channel: http }
