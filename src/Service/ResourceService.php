@@ -195,6 +195,24 @@ class ResourceService{
     return $identifier;
   }
 
+  public function getMainByCode($code)
+  {
+    $item= $this->entityManager->getRepository(CatalogueNodeItem::class)->findOneBy(['id'=>$code]);
+
+    $resourceRepo = $this->entityManager->getRepository(Resource::class);
+
+    $mainResource = $resourceRepo->findOneBy([
+      'item'=>$item,
+      'type'=>1
+    ]);
+
+    $resource = $resourceRepo->findOneBy([
+      'preset'=>2,
+      'gid'=>$mainResource->getGid()
+    ]);
+    return $resource;
+  }
+
 /**
  * Отправляет сообщения о необходимости создать все пресеты, которые подразумевает тип ресурса
  * @param Resource $resource Ресурс, для которого необходимо сгенерировть пресеты

@@ -415,7 +415,6 @@ class ImageProcessorService
         while (abs(($axes[0])-$limits[0])>$step && $result!==$params['targetResult']) {
             $axes[1] = $resets[1];
             while (abs(($axes[1])-$limits[1])>$step && $result!==$params['targetResult']) {
-              
                 $p = new Point((int)$x, (int)$y);
 
                 $color = $image->getColorAt($p)->__toString();
@@ -434,7 +433,7 @@ class ImageProcessorService
                 $axes[0]-=$increments[0];
                 $counters[0]++;
             }
-            $this->_clampVector($axes,[0,0],$limits);
+            $this->_clampVector($axes,[0,0],$imgSize);
         }
         return [$x, $y];
     }
