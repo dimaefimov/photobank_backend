@@ -400,11 +400,13 @@ class ImageProcessorService
         if ($params['direction'] === 'up' || $params['direction'] === 'down') {
             $axes = [&$y,&$x];
             $limits = [$params['direction']==='up'?0:$imgSize[1],$imgSize[0]];
+            $clampLimits = [$imgSize[1],$imgSize[0]];
             $increments = [$params['direction']==='up'?-$step:$step, $step];
             $resets = [$y,$x];
         } else {
             $axes = [&$x,&$y];
             $limits = [$params['direction']==='left'?0:$imgSize[0],$imgSize[1]];
+            $clampLimits = [$imgSize[0],$imgSize[1]];
             $increments = [$params['direction']==='left'?-$step:$step, $step];
             $resets = [$x,$y];
         }
@@ -433,7 +435,7 @@ class ImageProcessorService
                 $axes[0]-=$increments[0];
                 $counters[0]++;
             }
-            $this->_clampVector($axes,[0,0],$imgSize);
+            $this->_clampVector($axes,[0,0],$clampLimits);
         }
         return [$x, $y];
     }
