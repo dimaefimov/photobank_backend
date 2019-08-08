@@ -156,8 +156,8 @@ class ResourceRepository extends ServiceEntityRepository
         }
       }
       $result = $queryBuilder->getQuery()->getResult();
-      if(sizeof($result)<$index){
-        throw new HttpException(404);
+      if(!isset($result[$index])){
+        return NULL;
       }
       return $result[$index];
     }
