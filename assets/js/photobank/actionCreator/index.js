@@ -31,6 +31,7 @@ import {
   NODE_REBASE,
   SHOW_DELETED,
   UPLOAD_COMPLETE,
+  RESOURCE_REGEN,
   START,
   SUCCESS,
   FAIL,
@@ -519,6 +520,28 @@ export function getUserInfo(){
     }).catch((error)=>{
       dispatch({
         type: USER_INFO_FETCH+FAIL,
+        payload: "",
+      });
+      NotificationService.throw('server-error');
+    });
+  };
+}
+
+/**
+ * Запускает заново генерацию пресета
+ */
+export function regenResource(id){
+  return dispatch=>{
+    return fetch("/catalogue/node/item/resource/regen/"+id, {method:"GET"})
+    .then((response)=>{
+      dispatch({
+        type: RESOURCE_REGEN+SUCCESS,
+        payload: "",
+      });
+      NotificationService.toast('custom','сгенерировано');
+    }).catch((error)=>{
+      dispatch({
+        type: RESOURCE_REGEN+FAIL,
         payload: "",
       });
       NotificationService.throw('server-error');

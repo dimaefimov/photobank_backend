@@ -237,6 +237,21 @@ class ResourceService{
     }
   }
 
+  /**
+ * Отправляет сообщения о необходимости создать пресет для ресурса
+ * @param Resource $resource Ресурс, для которого необходимо сгенерировть пресеты
+ * @param int $preset id пресета
+ */
+public function dispatchPresetMessage($resource, $preset)
+{
+    $presetData = [
+      'resourceId'=>$resource,
+      'presetId'=>$preset,
+      'createdOn'=>date('d-m-Y H:i:s')
+    ];
+    $this->messageBus->dispatch(new ResourcePresetNotification($presetData));
+}
+
 /**
  * Получает инфомацию о ресурсе по его id
  * @param  int $id Идентификатор ресурса
@@ -337,6 +352,15 @@ class ResourceService{
     }
     return $data;
   }
+
+  public function resourceRegen($resource){
+    $gid = $resource->getGid();
+    $preset = $resource->getPreset();
+    $this->entityManager->remove($resource);
+    $this->entityManager->flush();
+    $this->dispatchPresetMessage($gid,$preset);
+  }
+
   public function importResources($csv_filename = 'resources.csv', $delimeter = ';')
   {
 	  $csv_import_directory = $this->container->getParameter('csv_import_directory');

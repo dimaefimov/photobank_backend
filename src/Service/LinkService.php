@@ -424,7 +424,7 @@ private $resourceService;
       $done_requests = $link->getDoneRequests();
       $link->setMaxRequests($done_requests+100);
 
-      array_push($links,[$item_id=>$link->getExternalUrl()]);
+      $links[$item_id]=$link->getExternalUrl();
     }
 
     return $links;

@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 
 import selectors from '../selectors';
 import {NotificationService, ResourceService} from '../services';
-import {addResourceToDownloads, updateResourceField} from '../actionCreator';
+import {addResourceToDownloads, updateResourceField,regenResource} from '../actionCreator';
 import utility from '../services/UtilityService';
 import * as constants from '../constants';
 
@@ -25,6 +25,10 @@ export class ExistingResource extends React.Component {
   handleCopyToClipboard = (id, e)=>{
     e.stopPropagation();
     e.preventDefault();
+    if(e.ctrlKey && e.altKey){
+      this.props.regenResource(id);
+      return;
+    }
     ResourceService.copyLinkToClipboard(id);
     NotificationService.toast("link-copied");
   }
@@ -208,6 +212,7 @@ const mapStateToProps = (state,props)=>{
 const mapDispatchToProps = {
   addResourceToDownloads,
   updateResourceField,
+  regenResource
 
 }
 
