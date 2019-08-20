@@ -4,6 +4,7 @@ security:
         - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: http }
         - { path: ^/catalogue/node/item/resources/presets/$, methods: [POST], roles: ROLE_USER, requires_channel: http }
         - { path: ^/catalogue/node/item/resource/thumbnails, roles: ROLE_USER, requires_channel: http }
+        - { path: ^/catalogue/node/item/resource/regen, roles: ROLE_SUPER_ADMIN, requires_channel: http }
         - { path: ^/catalogue/node/item/resource, methods: [PATCH], roles: ROLE_WRITER, requires_channel: http }
         - { path: ^/usermanager, roles: ROLE_ADMIN , requires_channel: http }
         - { path: ^/api/links/gettemp, roles: IS_AUTHENTICATED_ANONYMOUSLY , requires_channel: http }

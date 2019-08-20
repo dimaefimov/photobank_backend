@@ -376,6 +376,30 @@ class ResourceController extends AbstractController
         }
 
         /**
+        * Заново генерирует пресет по id существующего
+        *
+        * @param Resource $resource Объект ресурса, подтягивается через wildcard {id}
+        * @param Request $request Объект актуального запроса
+        * @param ResourceService $resourceService Сервис для работы с ресурсами
+        *
+        * @Route(
+        *      "/catalogue/node/item/resource/regen/{id}",
+        *      methods={"get"},
+        *      name="regen_resource",
+        *      requirements={
+        *          "id"="\d+"
+        *      }
+        * )
+        */
+        public function resourceRegen(Resource $resource, Request $request, ResourceService $resourceService)
+        {
+
+            $resourceService->resourceRegen($resource);
+
+            return new Response();
+        }
+
+        /**
         * Получает список возможных пресетов
         *
         * @param ContainerInterface $container Контейнер сервисов Symfony, для получения конфигурации
