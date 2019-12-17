@@ -199,9 +199,9 @@ private $resourceService;
     }else{
       $path = $this->entityManager->getRepository(Resource::class)->findOneBy(['id'=>$link->getSrcId()])->getPath();
     }
-    
+
     $path = $this->container->getParameter('local_file_dir').$path;
-    $image = file_get_contents($path);  
+    $image = file_get_contents($path);
 
     $filename = $link->getHash().'.jpg';
     return [
@@ -385,7 +385,7 @@ private $resourceService;
     }
     return [true, ""];
   }
-  
+
   public function getTempLinks($request)
   {
     if(!isset($request['items'])){
@@ -401,7 +401,7 @@ private $resourceService;
       $resource = $this->resourceService->getByItemPriorityPreset($item_id, 1, 4);
 
       if(!$resource){
-        array_push($links,[$item_id=>""]);
+        $links[$item_id]="";
         continue;
       }
 
@@ -417,15 +417,16 @@ private $resourceService;
         $params['max_requests'] = isset($request['max_requests'])?isset($request['max_requests']):NULL;
         $params['created_by'] = isset($request['created_by'])?isset($request['created_by']):1;
         $params['resource'] = isset($request['resource'])?isset($request['resource']):$resourceId;
-  
+
         $link = $this->createLink($params);
       }
 
       $done_requests = $link->getDoneRequests();
       $link->setMaxRequests($done_requests+100);
-
       $links[$item_id]=$link->getExternalUrl();
     }
+
+    $this->entityManager->flush();
 
     return $links;
   }

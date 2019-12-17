@@ -98,11 +98,13 @@ class ExternalController extends AbstractController
     */
     public function getTempLinks(Request $request, LinkService $linkService)
     {
+      set_time_limit(0);
+      
       $data = json_decode(
         $request->getContent(),
         true
       );
-      
+
       $response = new JsonResponse();
 
       $links = $linkService->getTempLinks($data);
